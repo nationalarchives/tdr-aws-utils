@@ -39,9 +39,11 @@ lazy val root = (project in file("."))
     name := "tdr-aws-utils",
     libraryDependencies ++= Seq(
       scalaTest % Test,
+      mockito % Test,
       lambdaJavaCore,
       lambdaJavaEvents,
       s3Sdk,
+      sqsSdk,
       typesafe,
       circeCore,
       circeGeneric,
