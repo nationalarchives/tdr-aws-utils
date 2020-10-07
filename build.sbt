@@ -42,6 +42,7 @@ lazy val root = (project in file("."))
       mockito % Test,
       lambdaJavaCore,
       lambdaJavaEvents,
+      ses,
       s3Sdk,
       sqsSdk,
       typesafe,
