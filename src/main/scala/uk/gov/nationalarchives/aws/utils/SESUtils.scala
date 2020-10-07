@@ -2,7 +2,6 @@ package uk.gov.nationalarchives.aws.utils
 
 import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.ses.model.{Body, Content, Destination, Message, SendEmailRequest, SendEmailResponse}
-import uk.gov.nationalarchives.aws.utils.Clients.ses
 import uk.gov.nationalarchives.aws.utils.SESUtils.Email
 
 import scala.util.Try
@@ -21,7 +20,7 @@ class SESUtils(sesClient: SesClient) {
       .source(email.fromAddress)
       .build
 
-    ses.sendEmail(request)
+    sesClient.sendEmail(request)
   }
 }
 
