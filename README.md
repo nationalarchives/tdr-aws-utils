@@ -7,9 +7,9 @@ This is a repository for useful methods and circe decoders. These can be used wh
 * SQS Utils - There is a send and a delete method for sqs messages.
 * SES Utils - There is a send email method.
 
-There are also clients for AWS services. These are configured with an http client, the region and and an endpoint configurable in an aplication.conf file. There are:
+There are also clients for AWS services. These are configured with an http client, the region and an endpoint configurable in an aplication.conf file. There are:
 * An SQS Client
 * An S3 Client
-* As SES Client
+* An SES Client
 
 There may be other shared code we can put in here as time goes on.
