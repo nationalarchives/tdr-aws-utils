@@ -19,14 +19,12 @@ class ECRUtils(client: EcrAsyncClient) {
 
   def describeImages(repositoryName: String): IO[DescribeImagesResponse] = {
     val request = DescribeImagesRequest.builder().repositoryName(repositoryName).build()
-
     IO(client.describeImages(request)).futureLift
   }
 
   def listRepositories(): IO[DescribeRepositoriesResponse] = {
     IO(client.describeRepositories()).futureLift
   }
-
 }
 
 object ECRUtils {
