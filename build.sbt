@@ -1,3 +1,4 @@
+
 import Dependencies._
 import sbt.url
 
@@ -42,6 +43,7 @@ lazy val root = (project in file("."))
       mockito % Test,
       lambdaJavaCore,
       lambdaJavaEvents,
+      ecrSdk,
       ses,
       s3Sdk,
       sqsSdk,
@@ -49,6 +51,8 @@ lazy val root = (project in file("."))
       circeCore,
       circeGeneric,
       circeParser,
+      monix,
+      monixEval
     )
   )
 

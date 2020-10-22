@@ -8,8 +8,12 @@ object Dependencies {
   lazy val s3Sdk = "software.amazon.awssdk" % "s3" % "2.13.18"
   lazy val ses = "software.amazon.awssdk" % "ses" % "2.15.2"
   lazy val sqsSdk = "software.amazon.awssdk" % "sqs" % "2.13.15"
+  lazy val ecrSdk = "software.amazon.awssdk" % "ecr" % "2.13.15"
   lazy val typesafe = "com.typesafe" % "config" % "1.4.0"
   lazy val circeCore = "io.circe" %% "circe-core" % "0.13.0"
   lazy val circeGeneric = "io.circe" %% "circe-generic" % "0.13.0"
   lazy val circeParser = "io.circe" %% "circe-parser" % "0.13.0"
+  lazy val catsEffect = "org.typelevel" %% "cats-effect" % "2.2.0"
+  lazy val monix = "io.monix" %% "monix" % "3.2.2"
+  lazy val monixEval = "io.monix" %% "monix-eval" % "3.2.2"
 }

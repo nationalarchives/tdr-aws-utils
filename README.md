@@ -6,10 +6,12 @@ This is a repository for useful methods and circe decoders. These can be used wh
 * AWS Decoders - Circe decoders for working with the above classes which are used by the event decoder method. These are needed because circe won't auto decode case classes.
 * SQS Utils - There is a send and a delete method for sqs messages.
 * SES Utils - There is a send email method.
+* ECR Utils - There are methods to list repositories, describe images and start an image scan.
 
 There are also clients for AWS services. These are configured with an http client, the region and an endpoint configurable in an aplication.conf file. There are:
 * An SQS Client
 * An S3 Client
 * An SES Client
+* An ECR client
 
 There may be other shared code we can put in here as time goes on.
