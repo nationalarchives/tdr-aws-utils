@@ -1,10 +1,10 @@
 package uk.gov.nationalarchives.aws.utils
 
-import software.amazon.awssdk.services.ecr.{EcrAsyncClient, EcrClient}
-import software.amazon.awssdk.services.ecr.model.{BatchGetImageRequest, DescribeImagesRequest, DescribeImagesResponse, DescribeRepositoriesResponse, ImageIdentifier, StartImageScanRequest, StartImageScanResponse}
-import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
 import cats.effect.IO
 import monix.catnap.syntax._
+import software.amazon.awssdk.services.ecr.EcrAsyncClient
+import software.amazon.awssdk.services.ecr.model._
+import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
 
 class ECRUtils(client: EcrAsyncClient) {
 

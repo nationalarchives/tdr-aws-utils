@@ -6,7 +6,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import software.amazon.awssdk.http.apache.ApacheHttpClient
 import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient
 import software.amazon.awssdk.regions.Region
-import software.amazon.awssdk.services.ecr.{EcrAsyncClient, EcrClient}
+import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.sqs.SqsClient
@@ -50,6 +50,4 @@ object Clients {
       .httpClient(httpClient)
       .build
   }
-
-
 }
