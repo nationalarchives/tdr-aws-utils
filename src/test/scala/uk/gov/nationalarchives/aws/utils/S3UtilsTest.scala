@@ -49,7 +49,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     pathCaptor.getValue.getFileName.toString should equal("path")
   }
 
-  "The download method" should "use the key for the download path if a key is not provided" in {
+  "The download method" should "use the key for the download path if a download path is not provided" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val pathCaptor: ArgumentCaptor[Path] = ArgumentCaptor.forClass(classOf[Path])
     when(s3AsyncClient.getObject(any[GetObjectRequest], pathCaptor.capture())).thenReturn(CompletableFuture.completedFuture(GetObjectResponse.builder().build()))
