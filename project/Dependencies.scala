@@ -16,4 +16,5 @@ object Dependencies {
   lazy val catsEffect = "org.typelevel" %% "cats-effect" % "2.2.0"
   lazy val monix = "io.monix" %% "monix" % "3.2.2"
   lazy val monixEval = "io.monix" %% "monix-eval" % "3.2.2"
+  lazy val jaxb = "javax.xml.bind" % "jaxb-api" % "2.3.0"
 }
