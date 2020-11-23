@@ -25,14 +25,16 @@ ThisBuild / description := "A project containing useful methods and circe decode
 ThisBuild / licenses := List("MIT" -> new URL("https://choosealicense.com/licenses/mit/"))
 ThisBuild / homepage := Some(url("https://github.com/nationalarchives/tdr-aws utils"))
 
-s3acl := None
-s3sse := true
+//s3acl := None
+//s3sse := true
 ThisBuild / publishMavenStyle := true
 
-ThisBuild / publishTo := {
-  val prefix = if (isSnapshot.value) "snapshots" else "releases"
-  Some(s3resolver.value(s"My ${prefix} S3 bucket", s3(s"tdr-$prefix-mgmt")))
-}
+ThisBuild / publishTo := Some("Releases" at "s3://tdr-releases-mgmt")
+
+//ThisBuild / publishTo := {
+//  val prefix = if (isSnapshot.value) "snapshots" else "releases"
+//  Some(s3resolver.value(s"My ${prefix} S3 bucket", s3(s"tdr-$prefix-mgmt")))
+//}
 
 
 lazy val root = (project in file("."))
@@ -52,8 +54,7 @@ lazy val root = (project in file("."))
       circeGeneric,
       circeParser,
       monix,
-      monixEval,
-      jaxb
+      monixEval
     )
   )
 
