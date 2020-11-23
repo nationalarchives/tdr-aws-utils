@@ -52,7 +52,8 @@ lazy val root = (project in file("."))
       circeGeneric,
       circeParser,
       monix,
-      monixEval
+      monixEval,
+      jaxb
     )
   )
 
