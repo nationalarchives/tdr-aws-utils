@@ -7,11 +7,13 @@ This is a repository for useful methods and circe decoders. These can be used wh
 * SQS Utils - There is a send and a delete method for sqs messages.
 * SES Utils - There is a send email method.
 * ECR Utils - There are methods to list repositories, describe images and start an image scan.
+* Step Function Utils - There is a send task success request method for the callback pattern
 
 There are also clients for AWS services. These are configured with an http client, the region and an endpoint configurable in an aplication.conf file. There are:
 * An SQS Client
 * An S3 Client
 * An SES Client
 * An ECR client
+* An SFN client (Step Function)
 
 There may be other shared code we can put in here as time goes on.
