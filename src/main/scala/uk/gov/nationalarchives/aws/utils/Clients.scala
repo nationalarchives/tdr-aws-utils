@@ -9,8 +9,8 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.s3.{S3AsyncClient, S3Client}
 import software.amazon.awssdk.services.ses.SesClient
-import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
+import software.amazon.awssdk.services.sqs.SqsClient
 
 object Clients {
 

@@ -2,17 +2,14 @@ package uk.gov.nationalarchives.aws.utils
 
 import java.util.concurrent.CompletableFuture
 
-import org.mockito.ArgumentMatchers.any
-import software.amazon.awssdk.services.sfn.SfnAsyncClient
-import software.amazon.awssdk.services.sfn.model.{SendTaskSuccessRequest, SendTaskSuccessResponse}
-
-//import com.amazonaws.services.stepfunctions.AWSStepFunctionsAsync
-//import com.amazonaws.services.stepfunctions.model.{SendTaskSuccessRequest, SendTaskSuccessResult}
 import io.circe.Json
+import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, Mockito, MockitoSugar}
 import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
+import software.amazon.awssdk.services.sfn.SfnAsyncClient
+import software.amazon.awssdk.services.sfn.model.{SendTaskSuccessRequest, SendTaskSuccessResponse}
 
 class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
