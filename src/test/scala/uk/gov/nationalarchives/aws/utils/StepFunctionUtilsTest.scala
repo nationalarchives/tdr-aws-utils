@@ -32,7 +32,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.output should equal(outputJson.toString())
   }
 
-  "The upload method" should "return an error if the upload fails" in {
+  "The sendTaskSuccessRequest method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskSuccess(any[SendTaskSuccessRequest]))
       .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Task success failed")))
