@@ -13,6 +13,17 @@ import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, PutObjectRequest, PutObjectResponse}
 
 class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
+
+    //Temporary function for running test on Jenkins
+    //Jenkins running on Java 8 which does not include the CompletableFuture.failedFuture method
+    //See: https://stackoverflow.com/questions/57151079/java8-unittesting-completablefuture-exception
+    def failedFuture[T](ex: Throwable): CompletableFuture[T] = {
+      // copied from Java 9 https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/CompletableFuture.html#failedFuture(java.lang.Throwable)
+      val f = new CompletableFuture[T]
+      f.completeExceptionally(ex)
+      f
+    }
+
   "The upload method" should "upload a file with the correct parameters" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val requestCaptor: ArgumentCaptor[PutObjectRequest] = ArgumentCaptor.forClass(classOf[PutObjectRequest])
@@ -29,7 +40,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The upload method" should "return an error if the upload fails" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    when(s3AsyncClient.putObject(any[PutObjectRequest], any[Path])).thenReturn(CompletableFuture.failedFuture(new RuntimeException("upload failed")))
+    when(s3AsyncClient.putObject(any[PutObjectRequest], any[Path])).thenReturn(failedFuture(new RuntimeException("upload failed")))
     val s3Utils = new S3Utils(s3AsyncClient)
     val response = s3Utils.upload("bucket", "key", Paths.get("path")).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("upload failed")
