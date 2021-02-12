@@ -71,7 +71,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The download method" should "return an error if the download fails" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    when(s3AsyncClient.getObject(any[GetObjectRequest], any[Path])).thenReturn(CompletableFuture.failedFuture(new RuntimeException("download failed")))
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[Path])).thenReturn(failedFuture(new RuntimeException("download failed")))
     val s3Utils = new S3Utils(s3AsyncClient)
     val response = s3Utils.downloadFiles("bucket", "key", Paths.get("path").some).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("download failed")
