@@ -10,6 +10,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
 import software.amazon.awssdk.services.sfn.model.{SendTaskSuccessRequest, SendTaskSuccessResponse}
+import uk.gov.nationalarchives.aws.utils.TestUtils.failedFuture
 
 class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
@@ -35,7 +36,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
   "The sendTaskSuccessRequest method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskSuccess(any[SendTaskSuccessRequest]))
-      .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Task success failed")))
+      .thenReturn(failedFuture(new RuntimeException("Task success failed")))
 
     val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
     val response = stepFunctionUtils.sendTaskSuccessRequest(taskToken, outputJson).attempt.unsafeRunSync()
