@@ -1,6 +1,6 @@
 package uk.gov.nationalarchives.aws.utils
 
-import java.nio.file.Path
+import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 
 import cats.implicits.catsSyntaxOptionId
@@ -11,15 +11,17 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, PutObjectRequest, PutObjectResponse}
+import uk.gov.nationalarchives.aws.utils.TestUtils.failedFuture
 
 class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
+
   "The upload method" should "upload a file with the correct parameters" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val requestCaptor: ArgumentCaptor[PutObjectRequest] = ArgumentCaptor.forClass(classOf[PutObjectRequest])
     val pathCaptor: ArgumentCaptor[Path] = ArgumentCaptor.forClass(classOf[Path])
     when(s3AsyncClient.putObject(requestCaptor.capture(), pathCaptor.capture())).thenReturn(CompletableFuture.completedFuture(PutObjectResponse.builder().build()))
     val s3Utils = new S3Utils(s3AsyncClient)
-    s3Utils.upload("bucket", "key", Path.of("path")).unsafeRunSync()
+    s3Utils.upload("bucket", "key", Paths.get("path")).unsafeRunSync()
     val request: PutObjectRequest = requestCaptor.getValue
 
     request.bucket() should equal("bucket")
@@ -29,9 +31,9 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The upload method" should "return an error if the upload fails" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    when(s3AsyncClient.putObject(any[PutObjectRequest], any[Path])).thenReturn(CompletableFuture.failedFuture(new RuntimeException("upload failed")))
+    when(s3AsyncClient.putObject(any[PutObjectRequest], any[Path])).thenReturn(failedFuture(new RuntimeException("upload failed")))
     val s3Utils = new S3Utils(s3AsyncClient)
-    val response = s3Utils.upload("bucket", "key", Path.of("path")).attempt.unsafeRunSync()
+    val response = s3Utils.upload("bucket", "key", Paths.get("path")).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("upload failed")
   }
 
@@ -41,7 +43,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     val pathCaptor: ArgumentCaptor[Path] = ArgumentCaptor.forClass(classOf[Path])
     when(s3AsyncClient.getObject(requestCaptor.capture(), pathCaptor.capture())).thenReturn(CompletableFuture.completedFuture(GetObjectResponse.builder().build()))
     val s3Utils = new S3Utils(s3AsyncClient)
-    s3Utils.downloadFiles("bucket", "key", Path.of("path").some).unsafeRunSync()
+    s3Utils.downloadFiles("bucket", "key", Paths.get("path").some).unsafeRunSync()
     val request: GetObjectRequest = requestCaptor.getValue
 
     request.bucket() should equal("bucket")
@@ -60,9 +62,9 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The download method" should "return an error if the download fails" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    when(s3AsyncClient.getObject(any[GetObjectRequest], any[Path])).thenReturn(CompletableFuture.failedFuture(new RuntimeException("download failed")))
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[Path])).thenReturn(failedFuture(new RuntimeException("download failed")))
     val s3Utils = new S3Utils(s3AsyncClient)
-    val response = s3Utils.downloadFiles("bucket", "key", Path.of("path").some).attempt.unsafeRunSync()
+    val response = s3Utils.downloadFiles("bucket", "key", Paths.get("path").some).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("download failed")
   }
 }

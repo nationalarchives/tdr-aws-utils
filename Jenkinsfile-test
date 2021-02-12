@@ -1,0 +1,67 @@
+library("tdr-jenkinslib")
+
+def versionTag = "v${env.BUILD_NUMBER}"
+def repo = "tdr-aws-utils"
+
+pipeline {
+  agent {
+    label "master"
+  }
+
+  stages {
+    stage("Run git secrets") {
+      steps {
+        script {
+          tdr.runGitSecrets(repo)
+        }
+      }
+    }
+    stage('Test') {
+      agent {
+        ecs {
+          inheritFrom 'transfer-frontend'
+        }
+      }
+      steps {
+        script {
+          tdr.reportStartOfBuildToGitHub(repo, env.GIT_COMMIT)
+        }
+        checkout scm
+        sh 'sbt -no-colors test'
+      }
+    }
+    stage('Post-build') {
+      when {
+        expression { env.BRANCH_NAME == "master"}
+      }
+      stages {
+        stage('Tag Release') {
+          steps {
+            sh "git tag ${versionTag}"
+            sshagent(['github-jenkins']) {
+              sh("git push origin ${versionTag}")
+            }
+          }
+        }
+        stage('Deploy to integration') {
+          steps {
+            build(
+              job: "TDR AWS Utils", wait: false)
+          }
+        }
+      }
+    }
+  }
+  post {
+    failure {
+      script {
+        tdr.reportFailedBuildToGitHub(repo, env.GIT_COMMIT)
+      }
+    }
+    success {
+      script {
+        tdr.reportSuccessfulBuildToGitHub(repo, env.GIT_COMMIT)
+      }
+    }
+  }
+}
