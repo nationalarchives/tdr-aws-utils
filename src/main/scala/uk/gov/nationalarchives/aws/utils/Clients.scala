@@ -9,6 +9,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.s3.{S3AsyncClient, S3Client}
 import software.amazon.awssdk.services.ses.SesClient
+import software.amazon.awssdk.services.sfn.SfnAsyncClient
 import software.amazon.awssdk.services.sqs.SqsClient
 
 object Clients {
@@ -56,6 +57,15 @@ object Clients {
     EcrAsyncClient.builder
       .region(Region.EU_WEST_2)
       .endpointOverride(URI.create(configFactory.getString("ecr.endpoint")))
+      .httpClient(httpClient)
+      .build
+  }
+
+  def sfnAsyncClient: SfnAsyncClient = {
+    val httpClient = NettyNioAsyncHttpClient.builder.build
+    SfnAsyncClient.builder
+      .region(Region.EU_WEST_2)
+      .endpointOverride(URI.create(configFactory.getString("sfn.endpoint")))
       .httpClient(httpClient)
       .build
   }

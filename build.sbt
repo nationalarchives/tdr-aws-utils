@@ -34,7 +34,6 @@ ThisBuild / publishTo := {
   Some(s3resolver.value(s"My ${prefix} S3 bucket", s3(s"tdr-$prefix-mgmt")))
 }
 
-
 lazy val root = (project in file("."))
   .settings(
     name := "tdr-aws-utils",
@@ -44,7 +43,7 @@ lazy val root = (project in file("."))
       lambdaJavaCore,
       lambdaJavaEvents,
       ecrSdk,
-      ses,
+      sesSdk,
       s3Sdk,
       sqsSdk,
       typesafe,
@@ -52,7 +51,8 @@ lazy val root = (project in file("."))
       circeGeneric,
       circeParser,
       monix,
-      monixEval
+      monixEval,
+      sfnSdk
     )
   )
 
