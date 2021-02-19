@@ -37,11 +37,11 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
   "The sendTaskSuccessRequest method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskSuccess(any[SendTaskSuccessRequest]))
-      .thenReturn(failedFuture(new RuntimeException("Task success failed")))
+      .thenReturn(failedFuture(new RuntimeException("Task success request failed")))
 
     val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
     val response = stepFunctionUtils.sendTaskSuccessRequest(taskToken, outputJson).attempt.unsafeRunSync()
-    response.left.value.getMessage should equal("Task success failed")
+    response.left.value.getMessage should equal("Task success request failed")
   }
 
   "the sendTaskFailureRequest method" should "be called with the correct parameters" in {
@@ -53,7 +53,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
 
     when(stepFunctionClient.sendTaskFailure(argumentCaptor.capture())).thenReturn(CompletableFuture.completedFuture(response))
 
-    stepFunctionUtils.sendTaskFailureRequest(taskToken, Some(errorMessage)).unsafeRunSync()
+    stepFunctionUtils.sendTaskFailureRequest(taskToken, errorMessage).unsafeRunSync()
 
     val request: SendTaskFailureRequest = argumentCaptor.getValue
     request.taskToken should equal("taskToken")
@@ -66,7 +66,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
       .thenReturn(failedFuture(new RuntimeException("Task failure request failed")))
 
     val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
-    val response = stepFunctionUtils.sendTaskFailureRequest(taskToken, Some(errorMessage)).attempt.unsafeRunSync()
+    val response = stepFunctionUtils.sendTaskFailureRequest(taskToken, errorMessage).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("Task failure request failed")
   }
 }
