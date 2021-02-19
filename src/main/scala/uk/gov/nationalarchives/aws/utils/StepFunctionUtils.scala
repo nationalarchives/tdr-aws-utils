@@ -4,7 +4,7 @@ import cats.effect.IO
 import io.circe.Json
 import monix.catnap.syntax.SyntaxForLiftFuture
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
-import software.amazon.awssdk.services.sfn.model.{SendTaskSuccessRequest, SendTaskSuccessResponse}
+import software.amazon.awssdk.services.sfn.model.{SendTaskFailureRequest, SendTaskFailureResponse, SendTaskSuccessRequest, SendTaskSuccessResponse}
 
 class StepFunctionUtils(client: SfnAsyncClient) {
 
@@ -15,6 +15,15 @@ class StepFunctionUtils(client: SfnAsyncClient) {
       .build
 
     IO(client.sendTaskSuccess(request)).futureLift
+  }
+
+  def sendTaskFailureRequest(taskToken: String, error: String): IO[SendTaskFailureResponse] = {
+    val request = SendTaskFailureRequest.builder
+      .taskToken(taskToken)
+      .error(error)
+      .build
+
+    IO(client.sendTaskFailure(request)).futureLift
   }
 }
 
