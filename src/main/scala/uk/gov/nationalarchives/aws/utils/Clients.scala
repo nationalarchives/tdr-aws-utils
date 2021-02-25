@@ -65,7 +65,7 @@ object Clients {
     val httpClient = NettyNioAsyncHttpClient.builder.build
     SfnAsyncClient.builder
       .region(Region.EU_WEST_2)
-      .endpointOverride(URI.create(configFactory.getString("sfn.endpoint")))
+      .endpointOverride(URI.create(configFactory.getString("stepFunction.endpoint")))
       .httpClient(httpClient)
       .build
   }
