@@ -17,10 +17,10 @@ class StepFunctionUtils(client: SfnAsyncClient) {
     IO(client.sendTaskSuccess(request)).futureLift
   }
 
-  def sendTaskFailureRequest(taskToken: String, error: String): IO[SendTaskFailureResponse] = {
+  def sendTaskFailureRequest(taskToken: String, cause: String): IO[SendTaskFailureResponse] = {
     val request = SendTaskFailureRequest.builder
       .taskToken(taskToken)
-      .error(error)
+      .cause(cause)
       .build
 
     IO(client.sendTaskFailure(request)).futureLift
