@@ -52,11 +52,11 @@ object Clients {
       .build()
   }
 
-  def ecr: EcrAsyncClient = {
+  def ecr(endpoint: URI): EcrAsyncClient = {
     val httpClient = NettyNioAsyncHttpClient.builder.build
     EcrAsyncClient.builder
       .region(Region.EU_WEST_2)
-      .endpointOverride(URI.create(configFactory.getString("ecr.endpoint")))
+      .endpointOverride(endpoint)
       .httpClient(httpClient)
       .build
   }
