@@ -17,6 +17,15 @@ class ECRUtils(client: EcrAsyncClient) {
     IO(client.startImageScan(request)).futureLift
   }
 
+  def imageScanFindings(repositoryName: String, imageDigest: String): IO[DescribeImageScanFindingsResponse] = {
+    val request = DescribeImageScanFindingsRequest.builder()
+      .repositoryName(repositoryName)
+      .imageId(ImageIdentifier.builder().imageDigest(imageDigest).build())
+      .build()
+
+    IO(client.describeImageScanFindings(request)).futureLift
+  }
+
   def describeImages(repositoryName: String): IO[DescribeImagesResponse] = {
     val request = DescribeImagesRequest.builder().repositoryName(repositoryName).build()
     IO(client.describeImages(request)).futureLift
