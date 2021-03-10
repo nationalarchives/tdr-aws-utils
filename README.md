@@ -1,4 +1,4 @@
-## TDR AWS Utils
+# TDR AWS Utils
 
 This is a repository for useful methods and circe decoders. These can be used when working with AWS classes. Currently there are:
 
@@ -17,3 +17,8 @@ There are also clients for AWS services. These are configured with an http clien
 * An SFN client (Step Function)
 
 There may be other shared code we can put in here as time goes on.
+
+## Publish local version
+
+Run `sbt package publishLocal` to publish a local snapshot version that you can use when making changes to this library
+and client code at the same time.
