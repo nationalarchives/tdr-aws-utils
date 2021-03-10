@@ -3,7 +3,7 @@ import Dependencies._
 import sbt.url
 
 ThisBuild / scalaVersion     := "2.13.2"
-ThisBuild / version          := "0.1.0-SNAPSHOT"
+ThisBuild / version          := (version in ThisBuild).value
 ThisBuild / organization     := "uk.gov.nationalarchives.aws.utils"
 
 ThisBuild / scmInfo := Some(
