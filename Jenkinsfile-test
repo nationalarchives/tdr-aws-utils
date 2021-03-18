@@ -1,6 +1,5 @@
 library("tdr-jenkinslib")
 
-def versionTag = "v${env.BUILD_NUMBER}"
 def repo = "tdr-aws-utils"
 
 pipeline {
@@ -35,15 +34,7 @@ pipeline {
         expression { env.BRANCH_NAME == "master"}
       }
       stages {
-        stage('Tag Release') {
-          steps {
-            sh "git tag ${versionTag}"
-            sshagent(['github-jenkins']) {
-              sh("git push origin ${versionTag}")
-            }
-          }
-        }
-        stage('Deploy to integration') {
+        stage('Publish library') {
           steps {
             build(
               job: "TDR AWS Utils", wait: false)
