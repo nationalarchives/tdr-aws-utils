@@ -70,11 +70,11 @@ object Clients {
       .build
   }
 
-  def kms: KmsClient = {
+  def kms(endpoint: String): KmsClient = {
     val httpClient = ApacheHttpClient.builder.build
     KmsClient.builder()
       .region(Region.EU_WEST_2)
-      .endpointOverride(URI.create(configFactory.getString("kms.endpoint")))
+      .endpointOverride(URI.create(endpoint))
       .httpClient(httpClient)
       .build()
   }
