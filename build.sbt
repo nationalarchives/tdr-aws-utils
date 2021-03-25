@@ -43,6 +43,7 @@ lazy val root = (project in file("."))
       lambdaJavaCore,
       lambdaJavaEvents,
       ecrSdk,
+      kmsSdk,
       sesSdk,
       s3Sdk,
       sqsSdk,
