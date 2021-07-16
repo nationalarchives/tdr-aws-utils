@@ -2,9 +2,9 @@ package uk.gov.nationalarchives.aws.utils
 
 import org.mockito.{ArgumentCaptor, Mockito, MockitoSugar}
 import org.scalatest.flatspec.AnyFlatSpec
-import software.amazon.awssdk.services.sqs.SqsClient
-import software.amazon.awssdk.services.sqs.model.{DeleteMessageRequest, DeleteMessageResponse, SendMessageRequest, SendMessageResponse}
 import org.scalatest.matchers.should.Matchers._
+import software.amazon.awssdk.services.sqs.SqsClient
+import software.amazon.awssdk.services.sqs.model._
 
 class SQSUtilsTest extends AnyFlatSpec with MockitoSugar {
 
@@ -35,5 +35,22 @@ class SQSUtilsTest extends AnyFlatSpec with MockitoSugar {
     val request: DeleteMessageRequest = argumentCaptor.getValue
     request.queueUrl should equal("testurl")
     request.receiptHandle() should equal("testreceipthandle")
+  }
+
+  "The makeMessageVisible method" should "set the visibility to zero" in {
+    val sqsClient = Mockito.mock(classOf[SqsClient])
+    val sqsUtils = SQSUtils(sqsClient)
+    val argumentCaptor: ArgumentCaptor[ChangeMessageVisibilityRequest] =
+      ArgumentCaptor.forClass(classOf[ChangeMessageVisibilityRequest])
+    val mockResponse = ChangeMessageVisibilityResponse.builder.build
+
+    doAnswer(() => mockResponse).when(sqsClient).changeMessageVisibility(argumentCaptor.capture())
+
+    sqsUtils.makeMessageVisible("testurl", "testreceipthandle")
+
+    val request: ChangeMessageVisibilityRequest = argumentCaptor.getValue
+    request.queueUrl should equal("testurl")
+    request.receiptHandle should equal("testreceipthandle")
+    request.visibilityTimeout should equal(0)
   }
 }

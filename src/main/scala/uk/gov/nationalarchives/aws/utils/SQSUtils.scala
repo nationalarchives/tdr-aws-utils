@@ -1,7 +1,7 @@
 package uk.gov.nationalarchives.aws.utils
 
 import software.amazon.awssdk.services.sqs.SqsClient
-import software.amazon.awssdk.services.sqs.model.{DeleteMessageRequest, DeleteMessageResponse, SendMessageRequest, SendMessageResponse}
+import software.amazon.awssdk.services.sqs.model._
 
 class SQSUtils(sqsClient: SqsClient) {
 
@@ -19,6 +19,16 @@ class SQSUtils(sqsClient: SqsClient) {
         .queueUrl(queueUrl)
         .receiptHandle(receiptHandle)
         .build())
+  }
+
+  def makeMessageVisible(queueUrl: String, receiptHandle: String): ChangeMessageVisibilityResponse = {
+    sqsClient.changeMessageVisibility(
+      ChangeMessageVisibilityRequest.builder
+        .queueUrl(queueUrl)
+        .receiptHandle(receiptHandle)
+        .visibilityTimeout(0)
+        .build
+    )
   }
 }
 
