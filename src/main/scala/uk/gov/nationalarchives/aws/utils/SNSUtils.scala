@@ -15,4 +15,3 @@ class SNSUtils(snsClient: SnsClient) {
 object SNSUtils {
   def apply(snsClient: SnsClient): SNSUtils = new SNSUtils(snsClient)
 }
-
