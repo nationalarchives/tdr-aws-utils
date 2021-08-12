@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.s3.{S3AsyncClient, S3Client}
 import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
 import software.amazon.awssdk.services.sqs.SqsClient
+import software.amazon.awssdk.services.sns.SnsClient
 
 object Clients {
 
@@ -75,6 +76,15 @@ object Clients {
     KmsClient.builder()
       .region(Region.EU_WEST_2)
       .endpointOverride(URI.create(endpoint))
+      .httpClient(httpClient)
+      .build()
+  }
+
+  def sns(endpointPath: String): SnsClient = {
+    val httpClient = ApacheHttpClient.builder.build
+    SnsClient.builder()
+      .region(Region.EU_WEST_2)
+      .endpointOverride(URI.create(endpointPath))
       .httpClient(httpClient)
       .build()
   }

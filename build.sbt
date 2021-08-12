@@ -53,7 +53,8 @@ lazy val root = (project in file("."))
       circeParser,
       monix,
       monixEval,
-      sfnSdk
+      sfnSdk,
+      snsSdk
     )
   )
 

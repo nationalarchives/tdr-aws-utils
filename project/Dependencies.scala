@@ -15,6 +15,7 @@ object Dependencies {
   lazy val ecrSdk = "software.amazon.awssdk" % "ecr" % awsSdkVersion
   lazy val sfnSdk = "software.amazon.awssdk" % "sfn" % awsSdkVersion
   lazy val kmsSdk = "software.amazon.awssdk" % "kms" % awsSdkVersion
+  lazy val snsSdk = "software.amazon.awssdk" % "sns" % awsSdkVersion
   lazy val typesafe = "com.typesafe" % "config" % "1.4.0"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
