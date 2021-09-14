@@ -33,7 +33,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.output should equal(outputJson.toString())
   }
 
-  "The sendTaskSuccessRequest method" should "return an error if the request fails" in {
+  "the sendTaskSuccessRequest method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskSuccess(any[SendTaskSuccessRequest]))
       .thenReturn(failedFuture(new RuntimeException("Task success request failed")))
@@ -59,7 +59,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.cause should equal(causeMessage)
   }
 
-  "The sendTaskFailureRequest method" should "return an error if the request fails" in {
+  "the sendTaskFailureRequest method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskFailure(any[SendTaskFailureRequest]))
       .thenReturn(failedFuture(new RuntimeException("Task failure request failed")))
@@ -84,7 +84,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.taskToken should equal("taskToken")
   }
 
-  "The sendTaskHeartbeat method" should "return an error if the request fails" in {
+  "the sendTaskHeartbeat method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.sendTaskHeartbeat(any[SendTaskHeartbeatRequest]))
       .thenReturn(failedFuture(new RuntimeException("Task heartbeat request failed")))
