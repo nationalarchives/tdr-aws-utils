@@ -2,7 +2,7 @@
 import Dependencies._
 import sbt.url
 
-ThisBuild / scalaVersion     := "2.13.2"
+ThisBuild / scalaVersion     := "2.13.6"
 ThisBuild / version          := (version in ThisBuild).value
 ThisBuild / organization     := "uk.gov.nationalarchives.aws.utils"
 
