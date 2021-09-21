@@ -1,13 +1,14 @@
 package uk.gov.nationalarchives.aws.utils
 
-import java.util.concurrent.CompletableFuture
-
+import cats.effect.unsafe.implicits.global
 import org.mockito.{ArgumentCaptor, Mockito, MockitoSugar}
 import org.scalatest.flatspec.AnyFlatSpec
-import software.amazon.awssdk.services.ecr.{EcrAsyncClient, EcrClient}
-import software.amazon.awssdk.services.ecr.model.{DescribeImageScanFindingsRequest, DescribeImageScanFindingsResponse, DescribeImagesRequest, DescribeImagesResponse, DescribeRepositoriesResponse, ImageScanFinding, ImageScanFindings, StartImageScanRequest, StartImageScanResponse}
 import org.scalatest.matchers.should.Matchers._
+import software.amazon.awssdk.services.ecr.EcrAsyncClient
+import software.amazon.awssdk.services.ecr.model._
 import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
+
+import java.util.concurrent.CompletableFuture
 
 class ECRUtilsTest extends AnyFlatSpec with MockitoSugar {
 

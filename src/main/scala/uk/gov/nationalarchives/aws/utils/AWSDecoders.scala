@@ -1,11 +1,15 @@
 package uk.gov.nationalarchives.aws.utils
 
+import cats.effect.IO
 import com.amazonaws.services.lambda.runtime.events.S3Event
 import com.amazonaws.services.lambda.runtime.events.SNSEvent.SNS
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification.{S3Entity, S3EventNotificationRecord}
 import io.circe.{Decoder, HCursor}
+
+import java.util.concurrent.CompletableFuture
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters.CompletionStageOps
 
 object AWSDecoders {
 
@@ -82,4 +86,7 @@ object AWSDecoders {
     new S3Event(records.asJava)
   }
 
+  implicit class FutureUtils[T](f: CompletableFuture[T]) {
+    def toIO: IO[T] = IO.fromFuture(IO(f.asScala))
+  }
 }

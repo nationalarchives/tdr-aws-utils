@@ -11,6 +11,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.Base64
 import scala.jdk.CollectionConverters.MapHasAsScala
+import scala.reflect.runtime.universe._
 
 class KMSUtilsTest extends AnyFlatSpec with MockitoSugar {
   "the decryptValue method" should "call kms with the correct arguments with the default encryption context" in {
