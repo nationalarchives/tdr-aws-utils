@@ -1,6 +1,5 @@
 package uk.gov.nationalarchives.aws.utils
 
-import cats.effect.IO
 import com.typesafe.config.ConfigFactory
 import software.amazon.awssdk.core.SdkBytes
 import software.amazon.awssdk.services.kms.KmsClient
@@ -8,10 +7,7 @@ import software.amazon.awssdk.services.kms.model.DecryptRequest
 
 import java.nio.ByteBuffer
 import java.util.Base64
-import java.util.concurrent.CompletableFuture
-import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters.CompletionStageOps
 import scala.util.{Failure, Success, Try}
 
 class KMSUtils(client: KmsClient, encryptionContext: Map[String, String]) {
@@ -35,8 +31,7 @@ class KMSUtils(client: KmsClient, encryptionContext: Map[String, String]) {
         client.decrypt(decryptRequest).plaintext().asUtf8String()
       } match {
         // Return the original value on error. This will allow us to deploy without breaking the lambdas. It can be removed once all variables are encrypted
-        case Failure(e) =>
-          throw(e)
+      case Failure(_) => value
         case Success(value) => value
       }
   }
