@@ -2,9 +2,9 @@ package uk.gov.nationalarchives.aws.utils
 
 import cats.effect.IO
 import io.circe.Json
-import monix.catnap.syntax.SyntaxForLiftFuture
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
 import software.amazon.awssdk.services.sfn.model.{SendTaskFailureRequest, SendTaskFailureResponse, SendTaskHeartbeatRequest, SendTaskHeartbeatResponse, SendTaskSuccessRequest, SendTaskSuccessResponse}
+import uk.gov.nationalarchives.aws.utils.AWSDecoders.FutureUtils
 
 class StepFunctionUtils(client: SfnAsyncClient) {
 
@@ -14,7 +14,7 @@ class StepFunctionUtils(client: SfnAsyncClient) {
       .output(outputJson.toString())
       .build
 
-    IO(client.sendTaskSuccess(request)).futureLift
+    client.sendTaskSuccess(request).toIO
   }
 
   def sendTaskFailureRequest(taskToken: String, cause: String): IO[SendTaskFailureResponse] = {
@@ -23,14 +23,14 @@ class StepFunctionUtils(client: SfnAsyncClient) {
       .cause(cause)
       .build
 
-    IO(client.sendTaskFailure(request)).futureLift
+    client.sendTaskFailure(request).toIO
   }
 
   def sendTaskHeartbeat(taskToken: String): IO[SendTaskHeartbeatResponse] = {
     val request = SendTaskHeartbeatRequest.builder
       .taskToken(taskToken)
       .build()
-    IO(client.sendTaskHeartbeat(request)).futureLift
+    client.sendTaskHeartbeat(request).toIO
   }
 }
 

@@ -10,6 +10,7 @@ import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
 import software.amazon.awssdk.services.sfn.model.{SendTaskFailureRequest, SendTaskFailureResponse, SendTaskHeartbeatRequest, SendTaskHeartbeatResponse, SendTaskSuccessRequest, SendTaskSuccessResponse}
 import uk.gov.nationalarchives.aws.utils.TestUtils.failedFuture
+import cats.effect.unsafe.implicits.global
 
 class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 

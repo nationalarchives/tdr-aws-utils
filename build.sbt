@@ -40,6 +40,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       scalaTest % Test,
       mockito % Test,
+      catsEffect,
       lambdaJavaCore,
       lambdaJavaEvents,
       ecrSdk,
@@ -51,8 +52,6 @@ lazy val root = (project in file("."))
       circeCore,
       circeGeneric,
       circeParser,
-      monix,
-      monixEval,
       sfnSdk,
       snsSdk
     )

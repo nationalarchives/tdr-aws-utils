@@ -1,9 +1,9 @@
 package uk.gov.nationalarchives.aws.utils
 
 import cats.effect.IO
-import monix.catnap.syntax._
 import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.ecr.model._
+import uk.gov.nationalarchives.aws.utils.AWSDecoders.FutureUtils
 import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
 
 class ECRUtils(client: EcrAsyncClient) {
@@ -14,7 +14,7 @@ class ECRUtils(client: EcrAsyncClient) {
       .imageId(imageIdentifier)
       .repositoryName(ecrImage.repositoryMame)
       .build
-    IO(client.startImageScan(request)).futureLift
+    client.startImageScan(request).toIO
   }
 
   def imageScanFindings(repositoryName: String, imageDigest: String): IO[DescribeImageScanFindingsResponse] = {
@@ -23,21 +23,20 @@ class ECRUtils(client: EcrAsyncClient) {
       .imageId(ImageIdentifier.builder().imageDigest(imageDigest).build())
       .build()
 
-    IO(client.describeImageScanFindings(request)).futureLift
+    client.describeImageScanFindings(request).toIO
   }
 
   def describeImages(repositoryName: String): IO[DescribeImagesResponse] = {
     val request = DescribeImagesRequest.builder().repositoryName(repositoryName).build()
-    IO(client.describeImages(request)).futureLift
+    client.describeImages(request).toIO
   }
 
   def listRepositories(): IO[DescribeRepositoriesResponse] = {
-    IO(client.describeRepositories()).futureLift
+    client.describeRepositories().toIO
   }
 }
 
 object ECRUtils {
   case class EcrImage(imageDigest: String, imageTag: String, repositoryMame: String)
-
   def apply(client: EcrAsyncClient): ECRUtils = new ECRUtils(client)
 }
