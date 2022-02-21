@@ -22,7 +22,7 @@ class S3Utils(client: S3AsyncClient) {
     client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))).toIO
   }
 
-  def generateSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {
+  def generateGetObjectSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {
     val getObjectRequest: GetObjectRequest =
       GetObjectRequest.builder()
         .bucket(bucketName)
