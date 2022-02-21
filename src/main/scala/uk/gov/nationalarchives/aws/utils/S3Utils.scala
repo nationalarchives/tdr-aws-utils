@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResp
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.{GetObjectPresignRequest, PresignedGetObjectRequest}
 import uk.gov.nationalarchives.aws.utils.AWSDecoders.FutureUtils
+import uk.gov.nationalarchives.aws.utils.S3Utils.presigner
 
 class S3Utils(client: S3AsyncClient) {
   def upload(bucket: String, key: String, path: Path): IO[PutObjectResponse] = {
@@ -22,10 +23,6 @@ class S3Utils(client: S3AsyncClient) {
   }
 
   def generateSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {
-    val presigner: S3Presigner  = S3Presigner.builder()
-      .region(Region.EU_WEST_2)
-      .build()
-
     val getObjectRequest: GetObjectRequest =
       GetObjectRequest.builder()
         .bucket(bucketName)
@@ -37,13 +34,14 @@ class S3Utils(client: S3AsyncClient) {
       .getObjectRequest(getObjectRequest)
       .build()
 
-    val presignedGetObjectRequest: PresignedGetObjectRequest = presigner.presignGetObject(getObjectPresignRequest)
-    presignedGetObjectRequest.url()
-
+    presigner.presignGetObject(getObjectPresignRequest).url()
   }
 }
 
-
 object S3Utils {
+  val presigner: S3Presigner  = S3Presigner.builder()
+    .region(Region.EU_WEST_2)
+    .build()
+
   def apply(client: S3AsyncClient): S3Utils = new S3Utils(client)
 }
