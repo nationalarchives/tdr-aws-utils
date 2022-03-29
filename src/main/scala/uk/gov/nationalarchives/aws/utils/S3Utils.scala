@@ -11,9 +11,8 @@ import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResp
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 import uk.gov.nationalarchives.aws.utils.AWSDecoders.FutureUtils
-import uk.gov.nationalarchives.aws.utils.S3Utils.presigner
 
-class S3Utils(client: S3AsyncClient) {
+class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
   def upload(bucket: String, key: String, path: Path): IO[PutObjectResponse] = {
     client.putObject(PutObjectRequest.builder.bucket(bucket).key(key).build, path).toIO
   }
@@ -43,5 +42,6 @@ object S3Utils {
     .region(Region.EU_WEST_2)
     .build()
 
-  def apply(client: S3AsyncClient): S3Utils = new S3Utils(client)
+  def apply(client: S3AsyncClient, presigner: S3Presigner) = new S3Utils(client, presigner)
+  def apply(client: S3AsyncClient): S3Utils = new S3Utils(client, presigner)
 }
