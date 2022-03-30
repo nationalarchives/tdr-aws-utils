@@ -5,7 +5,7 @@ import sbtrelease.ReleaseStateTransformations._
 
 ThisBuild / scalaVersion     := "2.13.6"
 ThisBuild / version          := (ThisBuild / version ).value
-ThisBuild / organization     := "uk.gov.nationalarchives.aws.utils"
+ThisBuild / organization     := "uk.gov.nationalarchives"
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
