@@ -3,7 +3,7 @@ import Dependencies._
 import sbt.url
 import sbtrelease.ReleaseStateTransformations._
 
-ThisBuild / scalaVersion     := "2.13.6"
+ThisBuild / scalaVersion     := "2.13.8"
 ThisBuild / version          := (ThisBuild / version ).value
 ThisBuild / organization     := "uk.gov.nationalarchives"
 
