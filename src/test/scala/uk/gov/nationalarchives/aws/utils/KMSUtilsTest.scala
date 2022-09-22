@@ -1,6 +1,6 @@
 package uk.gov.nationalarchives.aws.utils
 
-import org.mockito.{ArgumentCaptor, MockitoSugar}
+import org.mockito.{ArgumentCaptor, Mockito, MockitoSugar}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.core.SdkBytes
@@ -16,7 +16,7 @@ class KMSUtilsTest extends AnyFlatSpec with MockitoSugar {
   "the decryptValue method" should "call kms with the correct arguments with the default encryption context" in {
     val encryptedValue = "encryptedValue"
     val mockResponse = DecryptResponse.builder().plaintext(SdkBytes.fromString("plain text", Charset.defaultCharset())).build()
-    val client = mock[KmsClient]
+    val client = Mockito.mock(classOf[KmsClient])
     val decryptRequestCaptor: ArgumentCaptor[DecryptRequest] = ArgumentCaptor.forClass(classOf[DecryptRequest])
     doAnswer(() => mockResponse).when(client).decrypt(decryptRequestCaptor.capture())
     val response: String = KMSUtils(client).decryptValue(encryptedValue)
@@ -27,7 +27,7 @@ class KMSUtilsTest extends AnyFlatSpec with MockitoSugar {
 
   "the decryptValue method" should "call kms with the correct custom encryption context" in {
     val mockResponse = DecryptResponse.builder().plaintext(SdkBytes.fromString("plain text", Charset.defaultCharset())).build()
-    val client = mock[KmsClient]
+    val client = Mockito.mock(classOf[KmsClient])
     val decryptRequestCaptor: ArgumentCaptor[DecryptRequest] = ArgumentCaptor.forClass(classOf[DecryptRequest])
     doAnswer(() => mockResponse).when(client).decrypt(decryptRequestCaptor.capture())
     new KMSUtils(client, Map("customKey" -> "customValue")).decryptValue("encryptedValue")
