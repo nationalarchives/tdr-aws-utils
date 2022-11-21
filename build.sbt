@@ -11,7 +11,7 @@ lazy val commonSettings = Seq(
   ),
   scalaVersion := "2.13.10",
   version := version.value,
-  organization := "uk.gov.nationalarchives.aws.utils",
+  organization := "uk.gov.nationalarchives",
 
   scmInfo := Some(
     ScmInfo(
@@ -24,7 +24,7 @@ lazy val commonSettings = Seq(
       id = "tna-digital-archiving-jenkins",
       name = "TNA Digital Archiving",
       email = "digitalpreservation@nationalarchives.gov.uk",
-      url = url("https://github.com/nationalarchives/tdr-generated-grapqhl")
+      url = url("https://github.com/nationalarchives/tdr-aws-utils")
     )
   ),
 
@@ -53,7 +53,7 @@ lazy val commonSettings = Seq(
 
 lazy val s3 = (project in file("s3"))
   .settings(commonSettings).settings(
-  name := "s3",
+  name := "s3-utils",
   description := "A project containing useful methods for interacting with S3",
   libraryDependencies ++= Seq(
     s3Sdk
@@ -62,7 +62,7 @@ lazy val s3 = (project in file("s3"))
 
 lazy val ecr = (project in file("ecr"))
   .settings(commonSettings).settings(
-  name := "ecr",
+  name := "ecr-utils",
   description := "A project containing useful methods for interacting with ECR",
   libraryDependencies ++= Seq(
     ecrSdk
@@ -71,7 +71,7 @@ lazy val ecr = (project in file("ecr"))
 
 lazy val sns = (project in file("sns"))
   .settings(commonSettings).settings(
-  name := "sns",
+  name := "sns-utils",
   description := "A project containing useful methods for interacting with SNS",
   libraryDependencies ++= Seq(
     snsSdk
@@ -80,7 +80,7 @@ lazy val sns = (project in file("sns"))
 
 lazy val sqs = (project in file("sqs"))
   .settings(commonSettings).settings(
-  name := "sqs",
+  name := "sqs-utils",
   description := "A project containing useful methods for interacting with SQS",
   libraryDependencies ++= Seq(
     sqsSdk
@@ -89,7 +89,7 @@ lazy val sqs = (project in file("sqs"))
 
 lazy val stepFunction = (project in file("stepfunction"))
   .settings(commonSettings).settings(
-  name := "stepfunction",
+  name := "stepfunction-utils",
   description := "A project containing useful methods for interacting with Step Functions",
   libraryDependencies ++= Seq(
     sfnSdk,
@@ -101,7 +101,7 @@ lazy val stepFunction = (project in file("stepfunction"))
 
 lazy val ses = (project in file("ses"))
   .settings(commonSettings).settings(
-  name := "ses",
+  name := "ses-utils",
   description := "A project containing useful methods for interacting with SES",
   libraryDependencies ++= Seq(
     sesSdk
@@ -110,7 +110,7 @@ lazy val ses = (project in file("ses"))
 
 lazy val kms = (project in file("kms"))
   .settings(commonSettings).settings(
-  name := "kms",
+  name := "kms-utils",
   description := "A project containing useful methods for interacting with KMS",
   libraryDependencies ++= Seq(
     kmsSdk
@@ -119,7 +119,7 @@ lazy val kms = (project in file("kms"))
 
 lazy val decoders = (project in file("decoders"))
   .settings(commonSettings).settings(
-  name := "decoders",
+  name := "decoders-utils",
   description := "A project containing circe decoders for decoding SNS and S3 messages",
   libraryDependencies ++= Seq(
     lambdaJavaCore,
