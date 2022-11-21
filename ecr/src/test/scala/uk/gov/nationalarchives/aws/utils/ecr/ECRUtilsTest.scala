@@ -6,8 +6,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.ecr.model._
-import uk.gov.nationalarchives.aws.utils.ECRUtils
-import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
+import uk.gov.nationalarchives.aws.utils.ecr.ECRUtils
+import uk.gov.nationalarchives.aws.utils.ecr.ECRUtils.EcrImage
 
 import java.util.concurrent.CompletableFuture
 

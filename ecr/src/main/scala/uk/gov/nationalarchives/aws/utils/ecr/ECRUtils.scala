@@ -1,9 +1,9 @@
-package uk.gov.nationalarchives.aws.utils
+package uk.gov.nationalarchives.aws.utils.ecr
 
 import cats.effect.IO
 import software.amazon.awssdk.services.ecr.EcrAsyncClient
 import software.amazon.awssdk.services.ecr.model._
-import uk.gov.nationalarchives.aws.utils.ECRUtils.EcrImage
+import uk.gov.nationalarchives.aws.utils.ecr.ECRUtils.EcrImage
 
 import java.util.concurrent.CompletableFuture
 import scala.jdk.FutureConverters.CompletionStageOps
