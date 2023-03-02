@@ -1,8 +1,8 @@
 import sbt._
 
 object Dependencies {
-  private val awsSdkVersion = "2.19.19"
-  private val circeVersion = "0.14.3"
+  private val awsSdkVersion = "2.20.1"
+  private val circeVersion = "0.14.4"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.15"
   lazy val mockito = "org.mockito" %% "mockito-scala" % "1.17.12"
@@ -19,5 +19,5 @@ object Dependencies {
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion
-  lazy val catsEffect = "org.typelevel" %% "cats-effect" % "3.4.5"
+  lazy val catsEffect = "org.typelevel" %% "cats-effect" % "3.4.8"
 }
