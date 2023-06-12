@@ -9,7 +9,7 @@ lazy val commonSettings = Seq(
     mockito % Test,
     catsEffect
   ),
-  scalaVersion := "2.13.10",
+  scalaVersion := "2.13.11",
   version := version.value,
   organization := "uk.gov.nationalarchives",
 
