@@ -21,7 +21,7 @@ These are the list of custom circe decoders for decoding the AWS Java classes.
 
 ## sqs-utils
 ### Methods
-* `send` Will send a message to an SQS queue
+* `send` Will send a message to an SQS queue.
 * `delete` Will delete a message from an SQS queue
 * `makeMessageVisible` Will make a message visible again. This is useful for retries on lambda errors.
 
