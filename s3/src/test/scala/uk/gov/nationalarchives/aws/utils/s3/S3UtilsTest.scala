@@ -73,10 +73,10 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The generateGetObjectSignedUrl" should "create a valid 'get object' pre-signed url" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    val presigner: S3Presigner  = S3Presigner.builder()
-      .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("A", "B")))
+    val presigner: S3Presigner = S3Presigner.builder()
       .region(Region.EU_WEST_2)
       .build()
+
     val s3Utils = new S3Utils(s3AsyncClient, presigner)
     val url = s3Utils.generateGetObjectSignedUrl("some-bucket-name", "some-bucket-object")
     url.getHost shouldBe "some-bucket-name.s3.eu-west-2.amazonaws.com"
