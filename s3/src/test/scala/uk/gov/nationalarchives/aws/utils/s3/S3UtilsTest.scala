@@ -8,10 +8,12 @@ import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.awscore.presigner.SdkPresigner
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResponse, PutObjectRequest, PutObjectResponse}
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
+
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.failedFuture
@@ -73,9 +75,12 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "The generateGetObjectSignedUrl" should "create a valid 'get object' pre-signed url" in {
     val s3AsyncClient = mock[S3AsyncClient]
+
     val presigner: S3Presigner = S3Presigner.builder()
+      .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("A", "B")))
       .region(Region.EU_WEST_2)
       .build()
+      .asInstanceOf[S3Presigner]
 
     val s3Utils = new S3Utils(s3AsyncClient, presigner)
     val url = s3Utils.generateGetObjectSignedUrl("some-bucket-name", "some-bucket-object")
