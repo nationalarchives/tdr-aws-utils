@@ -12,6 +12,7 @@ pull_request_rules:
       - or:
           - files=build.sbt
           - files~=^(!?project/)
+          - files=version.sbt
     actions:
       review:
         type: APPROVE
