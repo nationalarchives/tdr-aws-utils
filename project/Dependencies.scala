@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  private val awsSdkVersion = "2.25.46"
+  private val awsSdkVersion = "2.25.49"
   private val circeVersion = "0.14.7"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.18"
