@@ -1,15 +1,43 @@
 package uk.gov.nationalarchives.aws.utils.stepfunction
 
 import cats.effect.IO
-import io.circe.Json
+import io.circe.syntax._
+import io.circe.{Encoder, Json, Printer}
 import software.amazon.awssdk.services.sfn.SfnAsyncClient
-import software.amazon.awssdk.services.sfn.model.{SendTaskFailureRequest, SendTaskFailureResponse, SendTaskHeartbeatRequest, SendTaskHeartbeatResponse, SendTaskSuccessRequest, SendTaskSuccessResponse}
+import software.amazon.awssdk.services.sfn.model._
 
 import java.util.concurrent.CompletableFuture
 import scala.jdk.FutureConverters.CompletionStageOps
 
 class StepFunctionUtils(client: SfnAsyncClient) {
-  def toIO[T](fut: CompletableFuture[T]): IO[T] = IO.fromFuture(IO(fut.asScala))
+  private def toIO[T](fut: CompletableFuture[T]): IO[T] = IO.fromFuture(IO(fut.asScala))
+
+  /** @param stateMachineArn
+   *   The arn of the state machine to start
+   * @param input
+   *   A case class. This will be deserialised to a json string and sent as input to the step function.
+   * @param name
+   *   An optional step function name. If this is omitted, AWS will generate a UUID for a name.
+   * @param enc
+   *   A circe encoder which will encode the case class to JSON
+   * @tparam T
+   *   The type of the input case class
+   * @return
+   *   The response from the startExecution call
+   */
+  def startExecution[T <: Product](stateMachineArn: String, input: T, name: Option[String] = None)(implicit enc: Encoder[T]): IO[StartExecutionResponse] = {
+    val builder = StartExecutionRequest.builder()
+    val inputString = input.asJson.printWith(Printer.noSpaces)
+
+    val startExecutionRequest: StartExecutionRequest = name
+      .map(builder.name)
+      .getOrElse(builder)
+      .stateMachineArn(stateMachineArn)
+      .input(inputString)
+      .build()
+
+    toIO(client.startExecution(startExecutionRequest))
+  }
 
   def sendTaskSuccessRequest(taskToken: String, outputJson: Json): IO[SendTaskSuccessResponse] = {
     val request = SendTaskSuccessRequest.builder
