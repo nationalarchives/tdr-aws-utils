@@ -41,7 +41,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.input() should equal("{\"id\":\"id1\",\"input1\":\"input1\",\"input2\":2}")
   }
 
-  "the the startExecution method method" should "return an error if the request fails" in {
+  "the the startExecution method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.startExecution(any[StartExecutionRequest]))
       .thenReturn(failedFuture(new RuntimeException("Start execution request failed")))
