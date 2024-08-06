@@ -57,6 +57,7 @@ These are the list of custom circe decoders for decoding the AWS Java classes.
 * `sendTaskSuccessRequest` Will send a custom json task success request for the provided task token.
 * `sendTaskFailureRequest` Will send a failure request for the provided task token with a failure cause.
 * `sendTaskHeartbeat` Will send a heartbeat for step function steps which are using it.
+* `startExecution` Will start a step function execution.
 
 ### Clients
 * `sfnAsyncClient` An async `SfnAsyncClient` client which takes an endpoint as an argument.
