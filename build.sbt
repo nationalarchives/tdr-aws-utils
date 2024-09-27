@@ -23,7 +23,7 @@ lazy val commonSettings = Seq(
     Developer(
       id = "tna-da-bot",
       name = "TNA Digital Archiving",
-      email = "s-GitHubDABot@nationalarchives.gov.uk",
+      email = "181243999+tna-da-bot@users.noreply.github.com",
       url = url("https://github.com/nationalarchives/tdr-aws-utils")
     )
   ),
