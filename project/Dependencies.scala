@@ -5,7 +5,7 @@ object Dependencies {
   private val circeVersion = "0.14.13"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.19"
-  lazy val mockito = "org.mockito" %% "mockito-scala" % "1.17.45"
+  lazy val mockito = "org.mockito" %% "mockito-scala" % "2.0.0"
   lazy val lambdaJavaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.3.0"
   lazy val lambdaJavaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.15.0"
   lazy val s3Sdk = "software.amazon.awssdk" % "s3" % awsSdkVersion
