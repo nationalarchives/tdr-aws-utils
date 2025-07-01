@@ -12,7 +12,7 @@ import java.nio.file.{Path, Paths}
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
 class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
@@ -64,15 +64,48 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
         innerFunction(nextResponse, response.contents().asScala.toList ::: accumulator)
       }
     }
+
     innerFunction(client.listObjectsV2(request).get(), List())
+  }
+
+  def GetObjectTags(targetBucket: String, targetFile: String): java.util.List[Tag] = {
+    val getTaggingRequest = GetObjectTaggingRequest.builder
+      .bucket(targetBucket)
+      .key(targetFile)
+      .build
+
+    client.getObjectTagging(getTaggingRequest).get.tagSet
+  }
+
+  def GetObjectTagsAsMap(targetBucket: String, targetFile: String): Map[String, String] = {
+    GetObjectTags(targetBucket, targetFile)
+      .asScala.map(tag => tag.key -> tag.value).toMap
+  }
+
+  def AddObjectTag(targetBucket: String, targetFile: String, newTag: (String, String)): IO[PutObjectTaggingResponse] = {
+    val tagList = GetObjectTagsAsMap(targetBucket, targetFile) + newTag
+    val updatedTags: Tagging = Tagging.builder
+      .tagSet(tagList.map(t => t.toTag).toList.asJava).build
+    val putObjectTaggingRequest = PutObjectTaggingRequest.builder
+      .bucket(targetBucket)
+      .key(targetFile)
+      .tagging(updatedTags)
+      .build
+
+    toIO(client.putObjectTagging(putObjectTaggingRequest))
+  }
+
+  implicit class TupleToTag(val t: (String, String)) {
+    def toTag = Tag.builder.key(t._1).value(t._2).build
   }
 }
 
 object S3Utils {
-  val presigner: S3Presigner  = S3Presigner.builder()
+  val presigner: S3Presigner = S3Presigner.builder()
     .region(Region.EU_WEST_2)
     .build()
 
   def apply(client: S3AsyncClient, presigner: S3Presigner) = new S3Utils(client, presigner)
+
   def apply(client: S3AsyncClient): S3Utils = new S3Utils(client, presigner)
 }
