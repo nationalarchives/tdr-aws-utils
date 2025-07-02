@@ -68,36 +68,35 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
     innerFunction(client.listObjectsV2(request).get(), List())
   }
 
-  def GetObjectTags(targetBucket: String, targetFile: String): java.util.List[Tag] = {
+  def getObjectTags(bucket: String, file: String): Map[String, String] = {
     val getTaggingRequest = GetObjectTaggingRequest.builder
-      .bucket(targetBucket)
-      .key(targetFile)
+      .bucket(bucket)
+      .key(file)
       .build
 
-    client.getObjectTagging(getTaggingRequest).get.tagSet
+    client.getObjectTagging(getTaggingRequest).get.tagSet.asScala.map(tag => tag.key -> tag.value).toMap
   }
 
-  def GetObjectTagsAsMap(targetBucket: String, targetFile: String): Map[String, String] = {
-    GetObjectTags(targetBucket, targetFile)
-      .asScala.map(tag => tag.key -> tag.value).toMap
-  }
-
-  def AddObjectTag(targetBucket: String, targetFile: String, newTag: (String, String)): IO[PutObjectTaggingResponse] = {
-    val tagList = GetObjectTagsAsMap(targetBucket, targetFile) + newTag
+  def addObjectTag(bucket: String, file: String, tag: (String, String)): IO[PutObjectTaggingResponse] = {
+    val tagList = getObjectTags(bucket, file) + tag
     val updatedTags: Tagging = Tagging.builder
-      .tagSet(tagList.map(t => t.toTag).toList.asJava).build
+      .tagSet(tagList.map(toTag).toList.asJava).build
+
+    putObjectTags(bucket, file, updatedTags)
+  }
+
+  def putObjectTags(bucket: String, file: String, tags: Tagging): IO[PutObjectTaggingResponse] = {
     val putObjectTaggingRequest = PutObjectTaggingRequest.builder
-      .bucket(targetBucket)
-      .key(targetFile)
-      .tagging(updatedTags)
+      .bucket(bucket)
+      .key(file)
+      .tagging(tags)
       .build
 
     toIO(client.putObjectTagging(putObjectTaggingRequest))
   }
 
-  implicit class TupleToTag(val t: (String, String)) {
-    def toTag = Tag.builder.key(t._1).value(t._2).build
-  }
+  private def toTag(t:(String, String)):Tag = Tag.builder.key(t._1).value(t._2).build
+
 }
 
 object S3Utils {
@@ -106,6 +105,5 @@ object S3Utils {
     .build()
 
   def apply(client: S3AsyncClient, presigner: S3Presigner) = new S3Utils(client, presigner)
-
   def apply(client: S3AsyncClient): S3Utils = new S3Utils(client, presigner)
 }
