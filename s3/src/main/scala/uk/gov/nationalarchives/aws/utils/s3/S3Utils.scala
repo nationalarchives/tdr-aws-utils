@@ -12,7 +12,7 @@ import java.nio.file.{Path, Paths}
 import java.time.Duration
 import java.util.concurrent.CompletableFuture
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters.CollectionHasAsScala
+import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
 class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
@@ -64,12 +64,72 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
         innerFunction(nextResponse, response.contents().asScala.toList ::: accumulator)
       }
     }
+
     innerFunction(client.listObjectsV2(request).get(), List())
   }
+
+  /** This is a wrapper method that returns a map of key-value tags from the specified S3 object .
+   *
+   * @param bucket
+   * The bucket name containing the object.
+   * @param key
+   * Name of the object key
+   * @return
+   * A string-string map of all tags on the object.
+   * @example
+   *   - val bucketName = ConfigFactory.load().getString("s3.bucket")
+   *   - val fileKey = "f63ee3c5-xxxx-4841-8963-875ee54dcd07"
+   *   - val tags = s3utils.getObjectTags(bucketName, fileKey)
+   * */
+  def getObjectTags(bucket: String, file: String): Map[String, String] = {
+    val getTaggingRequest = GetObjectTaggingRequest.builder
+      .bucket(bucket)
+      .key(file)
+      .build
+
+    client.getObjectTagging(getTaggingRequest).get.tagSet.asScala.map(tag => tag.key -> tag.value).toMap
+  }
+
+  /** This is a helper method that appends or updates one or more key-value tags to an S3 object in a specified bucket.
+   *
+   * @param bucket
+   * The bucket name containing the object.
+   * @param key
+   * Name of the object key
+   * @param tags
+   * The object tags as a map of string key-value pairs.
+   * @return
+   * A response object that contains either a success or an error code.
+   * @example
+   *   - val bucketName = ConfigFactory.load().getString("s3.bucket")
+   *   - val fileKey = "f63ee3c5-xxxx-4841-8963-875ee54dcd07"
+   *   - val tags = Map("date_last_modified" -> "2023-10-01", "author" -> "John Doe")
+   *   - val response = s3utils.addObjectTags(bucketName, fileKey, tags).unsafeRunSync()
+   * */
+  def addObjectTags(bucket: String, file: String, tags: Map[String, String]): IO[PutObjectTaggingResponse] = {
+    val tagList = getObjectTags(bucket, file) ++ tags
+    val updatedTags: Tagging = Tagging.builder
+      .tagSet(tagList.map(toTag).toList.asJava).build
+
+    putObjectTags(bucket, file, updatedTags)
+  }
+
+  private def putObjectTags(bucket: String, file: String, tags: Tagging): IO[PutObjectTaggingResponse] = {
+    val putObjectTaggingRequest = PutObjectTaggingRequest.builder
+      .bucket(bucket)
+      .key(file)
+      .tagging(tags)
+      .build
+
+    toIO(client.putObjectTagging(putObjectTaggingRequest))
+  }
+
+  private def toTag(t: (String, String)): Tag = Tag.builder.key(t._1).value(t._2).build
+
 }
 
 object S3Utils {
-  val presigner: S3Presigner  = S3Presigner.builder()
+  val presigner: S3Presigner = S3Presigner.builder()
     .region(Region.EU_WEST_2)
     .build()
 

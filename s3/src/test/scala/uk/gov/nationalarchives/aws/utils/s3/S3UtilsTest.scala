@@ -17,7 +17,7 @@ import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.failedFuture
 import scala.concurrent.ExecutionException
-import scala.jdk.CollectionConverters.IterableHasAsJava
+import scala.jdk.CollectionConverters._
 
 class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
@@ -124,5 +124,31 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
       s3Utils.listAllObjectsWithPrefix("some-bucket", "some/prefix")
     }
     exception.getMessage should equal("java.lang.RuntimeException: Request failed")
+  }
+
+  "'addObjectTags' method" should "correctly add tags to an object" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val getTagsResponse: ArgumentCaptor[GetObjectTaggingRequest] = ArgumentCaptor.forClass(classOf[GetObjectTaggingRequest])
+    val putTagsResponse: ArgumentCaptor[PutObjectTaggingRequest] = ArgumentCaptor.forClass(classOf[PutObjectTaggingRequest])
+    when(s3AsyncClient.getObjectTagging(getTagsResponse.capture())).thenReturn(CompletableFuture.completedFuture(GetObjectTaggingResponse.builder().build()))
+    when(s3AsyncClient.putObjectTagging(putTagsResponse.capture())).thenReturn(CompletableFuture.completedFuture(PutObjectTaggingResponse.builder().build()))
+    val s3Utils = S3Utils(s3AsyncClient)
+    val tags = Map("key1" -> "value1", "key2" -> "value2")
+    s3Utils.addObjectTags("bucket", "key", tags).attempt.unsafeRunSync()
+    val request: PutObjectTaggingRequest = putTagsResponse.getValue
+
+    request.bucket() should equal("bucket")
+    request.key() should equal("key")
+    request.tagging().tagSet().asScala.map(tag => (tag.key(), tag.value())).toMap should equal(tags)
+  }
+
+  "'addObjectTags' method" should "return an error if adding tags fails" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val getTagsResponse: ArgumentCaptor[GetObjectTaggingRequest] = ArgumentCaptor.forClass(classOf[GetObjectTaggingRequest])
+    when(s3AsyncClient.getObjectTagging(getTagsResponse.capture())).thenReturn(CompletableFuture.completedFuture(GetObjectTaggingResponse.builder().build()))
+    when(s3AsyncClient.putObjectTagging(any[PutObjectTaggingRequest])).thenReturn(failedFuture(new RuntimeException("Add tags request failed")))
+    val s3Utils = S3Utils(s3AsyncClient)
+    val response = s3Utils.addObjectTags("bucket", "key", Map("key1" -> "value1")).attempt.unsafeRunSync()
+    response.left.value.getMessage should equal("Add tags request failed")
   }
 }

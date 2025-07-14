@@ -2,6 +2,7 @@
 import Dependencies._
 import sbt.url
 import sbtrelease.ReleaseStateTransformations._
+import sbt.internal.librarymanagement.Publishing.sonaRelease
 
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
@@ -32,7 +33,11 @@ lazy val commonSettings = Seq(
   homepage := Some(url("https://github.com/nationalarchives/tdr-aws-utils")),
 
   useGpgPinentry := true,
-  publishTo := sonatypePublishToBundle.value,
+  publishTo := {
+    val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+    if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+    else localStaging.value
+  },
   publishMavenStyle := true,
 
   releaseProcess := Seq[ReleaseStep](
@@ -44,7 +49,7 @@ lazy val commonSettings = Seq(
     commitReleaseVersion,
     tagRelease,
     releaseStepCommand("publishSigned"),
-    releaseStepCommand("sonatypeBundleRelease"),
+    releaseStepCommand("sonaRelease"),
     setNextVersion,
     commitNextVersion,
     pushChanges
