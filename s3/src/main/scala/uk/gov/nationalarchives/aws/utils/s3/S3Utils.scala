@@ -1,6 +1,9 @@
 package uk.gov.nationalarchives.aws.utils.s3
 
 import cats.effect.IO
+import io.circe.Decoder
+import io.circe.parser.decode
+import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
@@ -15,6 +18,7 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
+
 class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
   def toIO[T](fut: CompletableFuture[T]): IO[T] = IO.fromFuture(IO(fut.asScala))
 
@@ -24,6 +28,37 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
 
   def downloadFiles(bucket: String, key: String, path: Option[Path] = None): IO[GetObjectResponse] = {
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
+  }
+
+  private def getObjectAsString(bucket: String, objectKey: String): String = {
+    val request = GetObjectRequest.builder.bucket(bucket).key(objectKey).build()
+    client.getObject(request, AsyncResponseTransformer.toBytes[GetObjectResponse])
+      .get().asByteArray().map(_.toChar).mkString
+  }
+
+  /**
+   * Method to decode a JSON object stored in S3
+   * @param bucket
+   * Name of the bucket where the object is stored
+   *
+   * @param jsonObjectKey
+   * Key of the JSON object
+   *
+   * @param decoder
+   * A circe decoder which will decode the JSON object to case class T
+   *
+   * @tparam T
+   * Type of the output case class
+   *
+   * @return
+   * JSON object decoded to case class of type T
+   */
+  def decodeS3JsonObject[T <: Product](bucket: String, jsonObjectKey: String)(implicit decoder: Decoder[T]): T = {
+    val jsonString = getObjectAsString(bucket, jsonObjectKey)
+    decode[T](jsonString) match {
+      case Left(error) => throw error
+      case Right(value) => value
+    }
   }
 
   def generateGetObjectSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {

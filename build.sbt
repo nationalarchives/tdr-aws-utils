@@ -61,6 +61,9 @@ lazy val s3 = (project in file("s3"))
   name := "s3-utils",
   description := "A project containing useful methods for interacting with S3",
   libraryDependencies ++= Seq(
+    circeCore,
+    circeGeneric,
+    circeParser,
     s3Sdk
   )
 )
