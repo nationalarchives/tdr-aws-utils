@@ -41,7 +41,7 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     request.input() should equal("{\"id\":\"id1\",\"input1\":\"input1\",\"input2\":2}")
   }
 
-  "the the startExecution method" should "return an error if the request fails" in {
+  "the startExecution method" should "return an error if the request fails" in {
     val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
     when(stepFunctionClient.startExecution(any[StartExecutionRequest]))
       .thenReturn(failedFuture(new RuntimeException("Start execution request failed")))
@@ -49,6 +49,32 @@ class StepFunctionUtilsTest extends AnyFlatSpec with MockitoSugar with EitherVal
     val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
     val response = stepFunctionUtils.startExecution("stepFunctionArn", input).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("Start execution request failed")
+  }
+
+  "describeExecution method" should "be called with the correct arguments" in {
+    val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
+    val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
+
+    val argumentCaptor: ArgumentCaptor[DescribeExecutionRequest] = ArgumentCaptor.forClass(classOf[DescribeExecutionRequest])
+    val response = DescribeExecutionResponse.builder().build()
+
+    when(stepFunctionClient.describeExecution(argumentCaptor.capture())).thenReturn(CompletableFuture.completedFuture(response))
+
+    stepFunctionUtils.describeExecution("execution-arn").unsafeRunSync()
+
+    val request: DescribeExecutionRequest = argumentCaptor.getValue
+    request.executionArn() should equal("execution-arn")
+
+  }
+
+  "the describeExecution method" should "return an error if the request fails" in {
+    val stepFunctionClient = Mockito.mock(classOf[SfnAsyncClient])
+    when(stepFunctionClient.describeExecution(any[DescribeExecutionRequest]))
+      .thenReturn(failedFuture(new RuntimeException("Describe execution request failed")))
+
+    val stepFunctionUtils = StepFunctionUtils(stepFunctionClient)
+    val response = stepFunctionUtils.describeExecution("execution-arn").attempt.unsafeRunSync()
+    response.left.value.getMessage should equal("Describe execution request failed")
   }
 
   "the sendTaskSuccessRequest method" should "be called with the correct parameters" in {
