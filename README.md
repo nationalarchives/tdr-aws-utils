@@ -69,6 +69,13 @@ These are the list of custom circe decoders for decoding the AWS Java classes.
 ### Clients
 * `kms` A synchronous `KmsClient` client which takes an endpoint as an argument.
 
+## ssm-utils
+### Methods
+`getParameterValue` will retrieve the value associated with the given parameter name.
+
+### Clients
+* `ssm` A synchronous `SsmClient` client which takes an endpoint as an argument.
+
 ## Publish local version
 
 Run `sbt package publishLocal` to publish a local version of all of these libraries in the `~/.ivy2/local/uk.gov.nationalarchives/` directory.
