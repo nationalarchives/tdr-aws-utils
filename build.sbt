@@ -125,6 +125,15 @@ lazy val kms = (project in file("kms"))
   )
 )
 
+lazy val ssm = (project in file("ssm"))
+  .settings(commonSettings).settings(
+  name := "ssm-utils",
+  description := "A project containing useful methods for interacting with SSM",
+  libraryDependencies ++= Seq(
+    ssmSdk
+  )
+)
+
 lazy val decoders = (project in file("decoders"))
   .settings(commonSettings).settings(
   name := "decoders-utils",
@@ -152,6 +161,6 @@ lazy val root = (project in file("."))
   .settings(
     name := "tdr-aws-utils",
     publish / skip := true
-  ).aggregate(s3, kms, ecr, ses, sns, sqs, stepFunction, decoders, secretsmanager)
+  ).aggregate(s3, kms, ssm, ecr, ses, sns, sqs, stepFunction, decoders, secretsmanager)
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
