@@ -3,6 +3,7 @@ package uk.gov.nationalarchives.aws.utils.s3
 import cats.effect.IO
 import io.circe.Decoder
 import io.circe.parser.decode
+import software.amazon.awssdk.core.ResponseBytes
 import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
@@ -10,6 +11,7 @@ import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 
+import java.io.InputStream
 import java.net.URL
 import java.nio.file.{Path, Paths}
 import java.time.Duration
@@ -30,10 +32,24 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
   }
 
-  private def getObjectAsString(bucket: String, objectKey: String): String = {
+  private def getObjectBytes(request: GetObjectRequest): ResponseBytes[GetObjectResponse] = {
+    client.getObject(request, AsyncResponseTransformer.toBytes[GetObjectResponse]).get()
+  }
+
+  /**
+   * Method to get S3 object as Input Stream
+   * @param bucket
+   * Name of the bucket where the object is stored
+   *
+   * @param objectKey
+   * Key of the JSON object
+   *
+   * @return
+   * Object as input stream
+   * */
+  def getObjectAsStream(bucket: String, objectKey: String): InputStream = {
     val request = GetObjectRequest.builder.bucket(bucket).key(objectKey).build()
-    client.getObject(request, AsyncResponseTransformer.toBytes[GetObjectResponse])
-      .get().asByteArray().map(_.toChar).mkString
+    getObjectBytes(request).asInputStream()
   }
 
   /**
@@ -54,7 +70,8 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
    * JSON object decoded to case class of type T
    */
   def decodeS3JsonObject[T <: Product](bucket: String, jsonObjectKey: String)(implicit decoder: Decoder[T]): T = {
-    val jsonString = getObjectAsString(bucket, jsonObjectKey)
+    val request: GetObjectRequest = GetObjectRequest.builder.bucket(bucket).key(jsonObjectKey).build()
+    val jsonString = getObjectBytes(request).asByteArray().map(_.toChar).mkString
     decode[T](jsonString) match {
       case Left(error) => throw error
       case Right(value) => value
