@@ -42,7 +42,7 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
    * Name of the bucket where the object is stored
    *
    * @param objectKey
-   * Key of the JSON object
+   * Key of the object
    *
    * @return
    * Object as input stream
