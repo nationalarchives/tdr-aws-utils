@@ -2,8 +2,8 @@ package uk.gov.nationalarchives.aws.utils.s3
 
 import cats.effect.unsafe.implicits.global
 import cats.implicits._
-import io.circe.{Decoder, DecodingFailure, ParsingFailure}
 import io.circe.generic.semiauto.deriveDecoder
+import io.circe.{Decoder, DecodingFailure, ParsingFailure}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.{ArgumentCaptor, MockitoSugar}
 import org.scalatest.EitherValues
@@ -17,24 +17,54 @@ import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 
+import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletableFuture.failedFuture
 import scala.concurrent.ExecutionException
+import scala.io.Source
 import scala.jdk.CollectionConverters._
 
 class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
+  val objectString = "{\"propertyA\":\"property_a\",\"propertyB\":2,\"propertyC\":{\"propertyC\":\"property_c\"}}"
   case class CCaseClass(propertyC: String)
   case class ACaseClass(propertyA: String, propertyB: Int, propertyC: CCaseClass)
 
   implicit val cDecoder: Decoder[CCaseClass] = deriveDecoder[CCaseClass]
   implicit val aDecoder: Decoder[ACaseClass] = deriveDecoder[ACaseClass]
 
+  "getObjectAsStream" should "read the object bytes and return as input stream" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val mockResponseBytes = mock[ResponseBytes[GetObjectResponse]]
+    val mockCompletableFuture = CompletableFuture.completedFuture(mockResponseBytes)
+    when(mockResponseBytes.asInputStream())
+      .thenReturn(new ByteArrayInputStream(objectString.getBytes()))
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
+      .thenReturn(mockCompletableFuture)
+
+    val result = s3Utils.getObjectAsStream("bucket-name", "json/object/key")
+    Source.fromInputStream(result).mkString should equal(objectString)
+  }
+
+  "getObjectAsStream" should "return an error when reading the object fails" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val s3Utils = S3Utils(s3AsyncClient)
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
+      .thenReturn(failedFuture(new RuntimeException("read failed")))
+
+    val exception = intercept[ExecutionException] {
+      s3Utils.getObjectAsStream("bucket-name", "json/object/key")
+    }
+    exception.getMessage should equal("java.lang.RuntimeException: read failed")
+  }
+
   "decodeS3JsonObject" should "decode a valid JSON object from S3" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val mockResponseBytes = mock[ResponseBytes[GetObjectResponse]]
     val mockCompletableFuture = CompletableFuture.completedFuture(mockResponseBytes)
-    when(mockResponseBytes.asByteArray()).thenReturn("{\"propertyA\":\"property_a\",\"propertyB\":2,\"propertyC\":{\"propertyC\":\"property_c\"}}".getBytes)
+    when(mockResponseBytes.asByteArray()).thenReturn(objectString.getBytes)
 
     val s3Utils = S3Utils(s3AsyncClient)
     when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
