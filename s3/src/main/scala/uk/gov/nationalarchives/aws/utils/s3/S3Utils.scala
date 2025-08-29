@@ -1,12 +1,17 @@
 package uk.gov.nationalarchives.aws.utils.s3
 
 import cats.effect.IO
+import io.circe.Decoder
+import io.circe.parser.decode
+import software.amazon.awssdk.core.ResponseBytes
+import software.amazon.awssdk.core.async.AsyncResponseTransformer
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
 
+import java.io.InputStream
 import java.net.URL
 import java.nio.file.{Path, Paths}
 import java.time.Duration
@@ -14,6 +19,7 @@ import java.util.concurrent.CompletableFuture
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
+
 
 class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
   def toIO[T](fut: CompletableFuture[T]): IO[T] = IO.fromFuture(IO(fut.asScala))
@@ -24,6 +30,52 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
 
   def downloadFiles(bucket: String, key: String, path: Option[Path] = None): IO[GetObjectResponse] = {
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
+  }
+
+  private def getObjectBytes(request: GetObjectRequest): ResponseBytes[GetObjectResponse] = {
+    client.getObject(request, AsyncResponseTransformer.toBytes[GetObjectResponse]).get()
+  }
+
+  /**
+   * Method to get S3 object as Input Stream
+   * @param bucket
+   * Name of the bucket where the object is stored
+   *
+   * @param objectKey
+   * Key of the object
+   *
+   * @return
+   * Object as input stream
+   * */
+  def getObjectAsStream(bucket: String, objectKey: String): InputStream = {
+    val request = GetObjectRequest.builder.bucket(bucket).key(objectKey).build()
+    getObjectBytes(request).asInputStream()
+  }
+
+  /**
+   * Method to decode a JSON object stored in S3
+   * @param bucket
+   * Name of the bucket where the object is stored
+   *
+   * @param jsonObjectKey
+   * Key of the JSON object
+   *
+   * @param decoder
+   * A circe decoder which will decode the JSON object to case class T
+   *
+   * @tparam T
+   * Type of the output case class
+   *
+   * @return
+   * JSON object decoded to case class of type T
+   */
+  def decodeS3JsonObject[T <: Product](bucket: String, jsonObjectKey: String)(implicit decoder: Decoder[T]): T = {
+    val request: GetObjectRequest = GetObjectRequest.builder.bucket(bucket).key(jsonObjectKey).build()
+    val jsonString = getObjectBytes(request).asByteArray().map(_.toChar).mkString
+    decode[T](jsonString) match {
+      case Left(error) => throw error
+      case Right(value) => value
+    }
   }
 
   def generateGetObjectSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {

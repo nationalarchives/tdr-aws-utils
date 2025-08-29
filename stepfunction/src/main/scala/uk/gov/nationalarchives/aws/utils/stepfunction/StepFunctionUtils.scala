@@ -39,6 +39,19 @@ class StepFunctionUtils(client: SfnAsyncClient) {
     toIO(client.startExecution(startExecutionRequest))
   }
 
+  /** @param executionArn
+   *   The arn of the state machine execution
+   * @return
+   *   The response from the describeExecution call
+   */
+  def describeExecution(executionArn: String): IO[DescribeExecutionResponse] = {
+    val request = DescribeExecutionRequest.builder()
+      .executionArn(executionArn)
+      .build()
+
+    toIO(client.describeExecution(request))
+  }
+
   def sendTaskSuccessRequest(taskToken: String, outputJson: Json): IO[SendTaskSuccessResponse] = {
     val request = SendTaskSuccessRequest.builder
       .taskToken(taskToken)
