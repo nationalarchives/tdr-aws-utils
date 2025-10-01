@@ -3,8 +3,6 @@ package uk.gov.nationalarchives.aws.utils.sqs
 import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.model._
 
-import java.util.UUID
-
 class SQSUtils(sqsClient: SqsClient) {
 
   /**
@@ -16,19 +14,22 @@ class SQSUtils(sqsClient: SqsClient) {
    * Message to send to the SQS queue
    *
    * @param messageGroupId
-   * Id used to group messages. If not supplied will default to random generated UUID
+   * Optional Id used to group messages.
    *
    * @return
    * SendMessageResponse object
    * */
   def send(queueUrl: String, messageBody: String, messageGroupId: Option[String] = None): SendMessageResponse = {
-    val groupId = messageGroupId.getOrElse(UUID.randomUUID().toString)
-    sqsClient.sendMessage(SendMessageRequest.builder()
+    val requestBuilder = SendMessageRequest.builder()
       .queueUrl(queueUrl)
       .messageBody(messageBody)
-      .messageGroupId(groupId)
       .delaySeconds(0)
-      .build())
+
+    if (messageGroupId.nonEmpty) {
+      requestBuilder.messageGroupId(messageGroupId.get)
+    }
+
+    sqsClient.sendMessage(requestBuilder.build())
   }
 
   def delete(queueUrl: String, receiptHandle: String): DeleteMessageResponse = {
