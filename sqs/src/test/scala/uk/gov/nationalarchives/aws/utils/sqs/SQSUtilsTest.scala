@@ -16,11 +16,28 @@ class SQSUtilsTest extends AnyFlatSpec with MockitoSugar {
 
     doAnswer(() => mockResponse).when(sqsClient).sendMessage(argumentCaptor.capture())
 
+    sqsUtils.send("testurl", "testbody", Some("messageGroupId"))
+    val request: SendMessageRequest = argumentCaptor.getValue
+    request.delaySeconds should equal(0)
+    request.queueUrl should equal("testurl")
+    request.messageBody should equal("testbody")
+    request.messageGroupId should equal("messageGroupId")
+  }
+
+  "The send method" should "not send message group id when not provided" in {
+    val sqsClient = Mockito.mock(classOf[SqsClient])
+    val sqsUtils = SQSUtils(sqsClient)
+    val argumentCaptor: ArgumentCaptor[SendMessageRequest] = ArgumentCaptor.forClass(classOf[SendMessageRequest])
+    val mockResponse = SendMessageResponse.builder.build
+
+    doAnswer(() => mockResponse).when(sqsClient).sendMessage(argumentCaptor.capture())
+
     sqsUtils.send("testurl", "testbody")
     val request: SendMessageRequest = argumentCaptor.getValue
     request.delaySeconds should equal(0)
     request.queueUrl should equal("testurl")
     request.messageBody should equal("testbody")
+    request.messageGroupId shouldBe null
   }
 
   "The delete method" should "be called with the correct parameters" in {
