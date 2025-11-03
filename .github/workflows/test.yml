@@ -1,5 +1,6 @@
 name: TDR Run Tests
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches-ignore:
