@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 jobs:
   deploy:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/sbt_release.yml@main
+    uses: nationalarchives/tdr-github-actions/.github/workflows/sbt_release.yml@288052e0133a47d2f12924edc2bc5553c1b2d73a # v0.0.5
     with:
       library-name: "AWS utils"
     secrets:
