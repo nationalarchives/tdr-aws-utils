@@ -1,7 +1,8 @@
 queue_rules:
   - name: default
-    conditions:
-      - "check-success=test"
+    batch_size: 1
+    queue_conditions:
+      - "check-success=test / test"
       - "check-success=security/snyk (nationalarchives)"
 pull_request_rules:
   - name: automatic merge for Scala Steward
