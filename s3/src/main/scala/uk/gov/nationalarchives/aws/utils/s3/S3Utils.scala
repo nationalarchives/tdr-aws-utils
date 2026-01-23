@@ -4,7 +4,7 @@ import cats.effect.IO
 import io.circe.Decoder
 import io.circe.parser.decode
 import software.amazon.awssdk.core.ResponseBytes
-import software.amazon.awssdk.core.async.AsyncResponseTransformer
+import software.amazon.awssdk.core.async.{AsyncRequestBody, AsyncResponseTransformer}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
@@ -78,6 +78,31 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
     }
   }
 
+
+  /**
+   * Method to put bytes as S3 object
+   * @param bucket
+   * Name of the bucket where the object is stored
+   *
+   * @param bytes
+   * Byte array to put in S3 bucket
+   *
+   * @param objectKey
+   * Key of the object
+   *
+   * @return
+   * Put object response
+   * */
+  def putObject(bucket: String, bytes: Array[Byte], objectKey: String): IO[PutObjectResponse] = {
+    val asyncBodyRequest = AsyncRequestBody.fromBytes(bytes)
+    val putObjectRequest = PutObjectRequest
+      .builder()
+      .key(objectKey)
+      .bucket(bucket)
+      .build()
+    toIO(client.putObject(putObjectRequest, asyncBodyRequest))
+  }
+
   def generateGetObjectSignedUrl(bucketName: String, keyName: String, durationInSeconds: Long = 60): URL = {
     val getObjectRequest: GetObjectRequest =
       GetObjectRequest.builder()
@@ -128,15 +153,11 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
    * Name of the object key
    * @return
    * A string-string map of all tags on the object.
-   * @example
-   *   - val bucketName = ConfigFactory.load().getString("s3.bucket")
-   *   - val fileKey = "f63ee3c5-xxxx-4841-8963-875ee54dcd07"
-   *   - val tags = s3utils.getObjectTags(bucketName, fileKey)
    * */
-  def getObjectTags(bucket: String, file: String): Map[String, String] = {
+  def getObjectTags(bucket: String, key: String): Map[String, String] = {
     val getTaggingRequest = GetObjectTaggingRequest.builder
       .bucket(bucket)
-      .key(file)
+      .key(key)
       .build
 
     client.getObjectTagging(getTaggingRequest).get.tagSet.asScala.map(tag => tag.key -> tag.value).toMap
@@ -152,18 +173,13 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
    * The object tags as a map of string key-value pairs.
    * @return
    * A response object that contains either a success or an error code.
-   * @example
-   *   - val bucketName = ConfigFactory.load().getString("s3.bucket")
-   *   - val fileKey = "f63ee3c5-xxxx-4841-8963-875ee54dcd07"
-   *   - val tags = Map("date_last_modified" -> "2023-10-01", "author" -> "John Doe")
-   *   - val response = s3utils.addObjectTags(bucketName, fileKey, tags).unsafeRunSync()
    * */
-  def addObjectTags(bucket: String, file: String, tags: Map[String, String]): IO[PutObjectTaggingResponse] = {
-    val tagList = getObjectTags(bucket, file) ++ tags
+  def addObjectTags(bucket: String, key: String, tags: Map[String, String]): IO[PutObjectTaggingResponse] = {
+    val tagList = getObjectTags(bucket, key) ++ tags
     val updatedTags: Tagging = Tagging.builder
       .tagSet(tagList.map(toTag).toList.asJava).build
 
-    putObjectTags(bucket, file, updatedTags)
+    putObjectTags(bucket, key, updatedTags)
   }
 
   private def putObjectTags(bucket: String, file: String, tags: Tagging): IO[PutObjectTaggingResponse] = {
@@ -177,7 +193,6 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
   }
 
   private def toTag(t: (String, String)): Tag = Tag.builder.key(t._1).value(t._2).build
-
 }
 
 object S3Utils {

@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  private val awsSdkVersion = "2.41.5"
+  private val awsSdkVersion = "2.41.13"
   private val circeVersion = "0.14.15"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.19"
@@ -17,7 +17,7 @@ object Dependencies {
   lazy val snsSdk = "software.amazon.awssdk" % "sns" % awsSdkVersion
   lazy val ssmSdk = "software.amazon.awssdk" % "ssm" % awsSdkVersion
   lazy val secretsManagerSdk = "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion
-  lazy val typesafe = "com.typesafe" % "config" % "1.4.3"
+  lazy val typesafe = "com.typesafe" % "config" % "1.4.5"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion
