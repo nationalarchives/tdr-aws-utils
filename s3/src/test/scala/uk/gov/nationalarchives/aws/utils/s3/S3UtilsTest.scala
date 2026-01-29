@@ -11,7 +11,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
 import software.amazon.awssdk.core.ResponseBytes
-import software.amazon.awssdk.core.async.AsyncResponseTransformer
+import software.amazon.awssdk.core.async.{AsyncRequestBody, AsyncResponseTransformer}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
@@ -224,11 +224,15 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     val s3Utils = S3Utils(s3AsyncClient)
     val tags = Map("key1" -> "value1", "key2" -> "value2")
     s3Utils.addObjectTags("bucket", "key", tags).attempt.unsafeRunSync()
-    val request: PutObjectTaggingRequest = putTagsResponse.getValue
+    val putRequest: PutObjectTaggingRequest = putTagsResponse.getValue
 
-    request.bucket() should equal("bucket")
-    request.key() should equal("key")
-    request.tagging().tagSet().asScala.map(tag => (tag.key(), tag.value())).toMap should equal(tags)
+    putRequest.bucket() should equal("bucket")
+    putRequest.key() should equal("key")
+    putRequest.tagging().tagSet().asScala.map(tag => (tag.key(), tag.value())).toMap should equal(tags)
+
+    val getRequest: GetObjectTaggingRequest = getTagsResponse.getValue
+    getRequest.bucket() should equal("bucket")
+    getRequest.key() should equal("key")
   }
 
   "'addObjectTags' method" should "return an error if adding tags fails" in {
@@ -239,5 +243,41 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     val s3Utils = S3Utils(s3AsyncClient)
     val response = s3Utils.addObjectTags("bucket", "key", Map("key1" -> "value1")).attempt.unsafeRunSync()
     response.left.value.getMessage should equal("Add tags request failed")
+  }
+
+  "'putObject'" should "put the object bytes using the correct arguments" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val bucket = "bucket"
+    val key = "key"
+    val bytes = "some string".getBytes
+    val expectedBodyRequest = AsyncRequestBody.fromBytes(bytes)
+    val expectedRequest = PutObjectRequest
+      .builder()
+      .key(key)
+      .bucket(bucket)
+      .build()
+    val bodyRequestArgumentCaptor: ArgumentCaptor[AsyncRequestBody] = ArgumentCaptor.forClass(classOf[AsyncRequestBody])
+    val requestArgumentCaptor: ArgumentCaptor[PutObjectRequest] = ArgumentCaptor.forClass(classOf[PutObjectRequest])
+    when(s3AsyncClient.putObject(requestArgumentCaptor.capture(), bodyRequestArgumentCaptor.capture())).thenReturn(
+      CompletableFuture.completedFuture(PutObjectResponse.builder().build())
+    )
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    s3Utils.putObject("bucket", bytes, "key").unsafeRunSync()
+    requestArgumentCaptor.getValue should equal(expectedRequest)
+    bodyRequestArgumentCaptor.getValue.contentLength().get() should equal(expectedBodyRequest.contentLength().get())
+  }
+
+  "'putObject'" should "return an error when request fails" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    when(s3AsyncClient.putObject(any[PutObjectRequest], any[AsyncRequestBody]))
+      .thenReturn(failedFuture(new RuntimeException("Put request failed"))
+    )
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    val exception = intercept[RuntimeException] {
+      s3Utils.putObject("bucket", "some string".getBytes, "key").unsafeRunSync()
+    }
+    exception.getMessage should equal("Put request failed")
   }
 }
