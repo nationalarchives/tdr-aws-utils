@@ -5,9 +5,12 @@ on:
     branches-ignore:
       - master
       - release-*
+permissions:
+  id-token: write
+  contents: write
 jobs:
   test:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/tdr_test.yml@5d4fee21ed08f053613a7706e28623c0adc0f5f4 # v.0.0.10
+    uses: nationalarchives/tdr-github-actions/.github/workflows/tdr_test.yml@b6ba669dcee7fd4ac089c2e9fb234c48ddd93ab5 # v.0.0.15
     with:
       repo-name: tdr-aws-utils
       test-command: |
