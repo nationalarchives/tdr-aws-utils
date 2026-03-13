@@ -17,9 +17,10 @@ object S3Clients {
       .build()
   }
 
-  def s3Async(endpoint: String): S3AsyncClient = {
+  def s3Async(endpoint: String, multipartEnabled: Boolean = false): S3AsyncClient = {
     val httpClient = NettyNioAsyncHttpClient.builder.build
     S3AsyncClient.builder
+      .multipartEnabled(multipartEnabled)
       .region(Region.EU_WEST_2)
       .endpointOverride(URI.create(endpoint))
       .httpClient(httpClient)
