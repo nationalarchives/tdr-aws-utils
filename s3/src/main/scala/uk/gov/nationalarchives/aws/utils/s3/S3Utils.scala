@@ -10,6 +10,8 @@ import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest
+import software.amazon.awssdk.transfer.s3.S3TransferManager
+import software.amazon.awssdk.transfer.s3.model.{CompletedCopy, CopyRequest}
 
 import java.io.InputStream
 import java.net.URL
@@ -21,7 +23,7 @@ import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters.CompletionStageOps
 
 
-class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
+class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3TransferManager) {
   def toIO[T](fut: CompletableFuture[T]): IO[T] = IO.fromFuture(IO(fut.asScala))
 
   def upload(bucket: String, key: String, path: Path): IO[PutObjectResponse] = {
@@ -30,6 +32,18 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner) {
 
   def downloadFiles(bucket: String, key: String, path: Option[Path] = None): IO[GetObjectResponse] = {
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
+  }
+
+  def copyObject(bucketName: String, key: String, destinationBucket: String, destinationKey: String): IO[CompletedCopy] = {
+    val copyObjectRequest = CopyObjectRequest.builder
+      .sourceBucket(bucketName)
+      .sourceKey(key)
+      .destinationBucket(destinationBucket)
+      .destinationKey(destinationKey)
+      .build
+    val copyRequest = CopyRequest.builder.copyObjectRequest(copyObjectRequest).build
+    val copy = transferManager.copy(copyRequest)
+    toIO(copy.completionFuture)
   }
 
   private def getObjectBytes(request: GetObjectRequest): ResponseBytes[GetObjectResponse] = {
@@ -200,6 +214,17 @@ object S3Utils {
     .region(Region.EU_WEST_2)
     .build()
 
-  def apply(client: S3AsyncClient, presigner: S3Presigner) = new S3Utils(client, presigner)
-  def apply(client: S3AsyncClient): S3Utils = new S3Utils(client, presigner)
+  def apply(client: S3AsyncClient, presigner: S3Presigner): S3Utils = {
+    val transferManager = S3TransferManager.builder()
+      .s3Client(client)
+      .build()
+    new S3Utils(client, presigner, transferManager)
+  }
+
+  def apply(client: S3AsyncClient): S3Utils = {
+    val transferManager = S3TransferManager.builder()
+      .s3Client(client)
+      .build()
+    new S3Utils(client, presigner, transferManager)
+  }
 }

@@ -16,6 +16,8 @@ object Dependencies {
   lazy val kmsSdk = "software.amazon.awssdk" % "kms" % awsSdkVersion
   lazy val snsSdk = "software.amazon.awssdk" % "sns" % awsSdkVersion
   lazy val ssmSdk = "software.amazon.awssdk" % "ssm" % awsSdkVersion
+  lazy val s3Bom = "software.amazon.awssdk" % "bom" % awsSdkVersion
+  lazy val s3TM = "software.amazon.awssdk" % "s3-transfer-manager" % awsSdkVersion
   lazy val secretsManagerSdk = "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion
   lazy val typesafe = "com.typesafe" % "config" % "1.4.5"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
