@@ -66,7 +66,7 @@ lazy val s3 = (project in file("s3"))
     circeParser,
     s3Sdk,
     s3Bom,
-    s3TM
+    s3TransferManager
   )
 )
 

@@ -34,6 +34,24 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
   }
 
+  /** Method to copy an S3 object from source bucket to destination bucket.
+   * This method uses the S3 Transfer Manager which performs the copy operation asynchronously and is more efficient for copying large objects.
+   *
+   * @param bucketName
+   * Name of the source bucket
+   *
+   * @param key
+   * Key of the source object
+   *
+   * @param destinationBucket
+   * Name of the destination bucket
+   *
+   * @param destinationKey
+   * Key of the destination object
+   *
+   * @return
+   * A CompletedCopy object containing details of the copy operation
+   */
   def copyObject(bucketName: String, key: String, destinationBucket: String, destinationKey: String): IO[CompletedCopy] = {
     val copyObjectRequest = CopyObjectRequest.builder
       .sourceBucket(bucketName)

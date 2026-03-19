@@ -17,7 +17,7 @@ object S3Clients {
       .build()
   }
 
-  def s3Async(endpoint: String, multipartEnabled: Boolean = false): S3AsyncClient = {
+  def s3Async(endpoint: String, multipartEnabled: Boolean = true): S3AsyncClient = {
     val httpClient = NettyNioAsyncHttpClient.builder.build
     S3AsyncClient.builder
       .multipartEnabled(multipartEnabled)
