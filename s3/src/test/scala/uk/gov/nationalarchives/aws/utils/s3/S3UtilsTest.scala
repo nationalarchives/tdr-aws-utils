@@ -16,6 +16,9 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
+import software.amazon.awssdk.transfer.s3.S3TransferManager
+import software.amazon.awssdk.transfer.s3.model.CompletedCopy
+import software.amazon.awssdk.transfer.s3.model.CopyRequest
 
 import java.io.ByteArrayInputStream
 import java.nio.file.{Path, Paths}
@@ -132,6 +135,37 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     response.left.value.getMessage should equal("upload failed")
   }
 
+  "The copyObject method" should "copy object from source bucket to destination bucket" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val s3TransferManager = mock[S3TransferManager]
+    val requestCaptor: ArgumentCaptor[CopyRequest] = ArgumentCaptor.forClass(classOf[CopyRequest])
+
+    // mock the Copy operation returned by the transfer manager and stub its completionFuture
+    val mockCopy = mock[software.amazon.awssdk.transfer.s3.model.Copy]
+    val completedCopyFuture = CompletableFuture.completedFuture(CompletedCopy.builder().response(CopyObjectResponse.builder().build()).build())
+    when(mockCopy.completionFuture()).thenReturn(completedCopyFuture)
+    when(s3TransferManager.copy(requestCaptor.capture())).thenReturn(mockCopy)
+    val s3Utils = new S3Utils(s3AsyncClient, S3Utils.presigner, s3TransferManager)
+    s3Utils.copyObject("bucket", "key", "dest-bucket", "dest-key").attempt.unsafeRunSync()
+
+    val copyObjectRequest = requestCaptor.getValue.copyObjectRequest()
+    copyObjectRequest.sourceBucket() should equal("bucket")
+    copyObjectRequest.sourceKey() should equal("key")
+    copyObjectRequest.destinationBucket() should equal("dest-bucket")
+    copyObjectRequest.destinationKey() should equal("dest-key")
+  }
+
+  "The copyObject method" should "return an error if the copy fails" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val s3TransferManager = mock[S3TransferManager]
+    val mockCopyFailure = mock[software.amazon.awssdk.transfer.s3.model.Copy]
+    when(mockCopyFailure.completionFuture()).thenReturn(failedFuture(new RuntimeException("copy failed")))
+    when(s3TransferManager.copy(any[CopyRequest]())).thenReturn(mockCopyFailure)
+    val s3Utils = new S3Utils(s3AsyncClient, S3Utils.presigner, s3TransferManager)
+    val response = s3Utils.copyObject("bucket", "key", "dest-bucket", "dest-key").attempt.unsafeRunSync()
+    response.left.value.getMessage should equal("copy failed")
+  }
+
   "The download method" should "download a file with the correct parameters" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val requestCaptor: ArgumentCaptor[GetObjectRequest] = ArgumentCaptor.forClass(classOf[GetObjectRequest])
@@ -172,7 +206,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
       .build()
       .asInstanceOf[S3Presigner]
 
-    val s3Utils = new S3Utils(s3AsyncClient, presigner)
+    val s3Utils = S3Utils(s3AsyncClient, presigner)
     val url = s3Utils.generateGetObjectSignedUrl("some-bucket-name", "some-bucket-object")
     url.getHost shouldBe "some-bucket-name.s3.eu-west-2.amazonaws.com"
     url.getFile.contains("some-bucket-object") shouldBe true
