@@ -21,5 +21,5 @@ object Dependencies {
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion
-  lazy val catsEffect = "org.typelevel" %% "cats-effect" % "3.6.3"
+  lazy val catsEffect = "org.typelevel" %% "cats-effect" % "3.7.0"
 }
