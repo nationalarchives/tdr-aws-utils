@@ -19,7 +19,7 @@ class SSMUtilsSpec extends AnyFlatSpec with MockitoSugar {
         .build())
       .build()
 
-    when(client.getParameter(any[GetParameterRequest]())).thenReturn(parameterResponse)
+    when(client.getParameter(any[GetParameterRequest])).thenReturn(parameterResponse)
 
     val response: String = SSMUtils(client).getParameterValue("name")
     response should be(expectedValue)
