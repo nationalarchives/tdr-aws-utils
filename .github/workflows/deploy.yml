@@ -1,4 +1,5 @@
 name: TDR Deploy AWS Utils
+permissions: {}
 on:
   workflow_dispatch:
 jobs:
