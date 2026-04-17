@@ -1,11 +1,11 @@
 import sbt._
 
 object Dependencies {
-  private val awsSdkVersion = "2.42.32"
+  private val awsSdkVersion = "2.42.34"
   private val circeVersion = "0.14.15"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.20"
-  lazy val mockito = "org.mockito" %% "mockito-scala" % "2.1.0"
+  lazy val mockito = "org.mockito" %% "mockito-scala" % "2.2.1"
   lazy val lambdaJavaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.4.0"
   lazy val lambdaJavaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.16.1"
   lazy val s3Sdk = "software.amazon.awssdk" % "s3" % awsSdkVersion
