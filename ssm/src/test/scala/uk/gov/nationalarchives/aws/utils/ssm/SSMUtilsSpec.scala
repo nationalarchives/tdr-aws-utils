@@ -11,8 +11,8 @@ class SSMUtilsSpec extends AnyFlatSpec with MockitoSugar {
 
   "getParameterValue" should "call ssm and return parameter value for given name" in {
     val expectedValue = "expectedValue"
-    val client = mock[SsmClient]
-    val parameterResponse = GetParameterResponse.builder()
+    val client: SsmClient = mock[SsmClient]
+    val parameterResponse: GetParameterResponse = GetParameterResponse.builder()
       .parameter(Parameter.builder()
         .name("name")
         .value(expectedValue)
