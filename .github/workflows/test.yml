@@ -10,7 +10,7 @@ permissions:
   contents: write
 jobs:
   test:
-    uses: nationalarchives/tdr-github-actions/.github/workflows/tdr_test.yml@9214d929d74b527c75cdac14ba96812f90b3ebba # v.0.0.35
+    uses: nationalarchives/tdr-github-actions/.github/workflows/tdr_test.yml@8f8b90556173b43554c22d6b5f192fe9f26ad8ab # v.0.0.36
     with:
       repo-name: tdr-aws-utils
       test-command: |
