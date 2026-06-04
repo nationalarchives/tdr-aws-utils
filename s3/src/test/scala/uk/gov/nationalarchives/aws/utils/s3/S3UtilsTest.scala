@@ -10,8 +10,10 @@ import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.core.ResponseInputStream
 import software.amazon.awssdk.core.ResponseBytes
 import software.amazon.awssdk.core.async.{AsyncRequestBody, AsyncResponseTransformer}
+import software.amazon.awssdk.http.AbortableInputStream
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
@@ -38,11 +40,14 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "getObjectAsStream" should "read the object bytes and return as input stream" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    val mockInputStream: java.io.InputStream = new ByteArrayInputStream(objectString.getBytes())
-    val mockCompletableFuture: CompletableFuture[java.io.InputStream] = CompletableFuture.completedFuture(mockInputStream)
+    val mockInputStream = new ResponseInputStream[GetObjectResponse](
+      GetObjectResponse.builder().build(),
+      AbortableInputStream.create(new ByteArrayInputStream(objectString.getBytes()))
+    )
+    val mockCompletableFuture: CompletableFuture[ResponseInputStream[GetObjectResponse]] = CompletableFuture.completedFuture(mockInputStream)
 
     val s3Utils = S3Utils(s3AsyncClient)
-    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, java.io.InputStream]]))
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseInputStream[GetObjectResponse]]]))
       .thenReturn(mockCompletableFuture)
 
     val result = s3Utils.getObjectAsStream("bucket-name", "json/object/key")
