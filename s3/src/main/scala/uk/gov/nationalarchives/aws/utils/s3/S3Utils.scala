@@ -69,7 +69,8 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
   }
 
   /**
-   * Method to get S3 object as Input Stream
+   * Method to get S3 object as Input Stream.
+   * This streams the object content without reading it entirely into memory.
    * @param bucket
    * Name of the bucket where the object is stored
    *
@@ -81,7 +82,7 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
    * */
   def getObjectAsStream(bucket: String, objectKey: String): InputStream = {
     val request = GetObjectRequest.builder.bucket(bucket).key(objectKey).build()
-    getObjectBytes(request).asInputStream()
+    client.getObject(request, AsyncResponseTransformer.toBlockingInputStream[GetObjectResponse]).get()
   }
 
   /**
