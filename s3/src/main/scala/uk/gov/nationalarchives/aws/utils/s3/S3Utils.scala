@@ -71,6 +71,7 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
   /**
    * Method to get S3 object as Input Stream.
    * This streams the object content without reading it entirely into memory.
+   * The returned stream must be closed by the caller to avoid leaking HTTP connections/resources.
    * @param bucket
    * Name of the bucket where the object is stored
    *
