@@ -39,11 +39,11 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
   "getObjectAsStream" should "read the object bytes and return as input stream" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val mockInputStream: java.io.InputStream = new ByteArrayInputStream(objectString.getBytes())
-    val mockCompletableFuture = CompletableFuture.completedFuture(mockInputStream)
+    val mockCompletableFuture: CompletableFuture[java.io.InputStream] = CompletableFuture.completedFuture(mockInputStream)
 
     val s3Utils = S3Utils(s3AsyncClient)
     when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, java.io.InputStream]]))
-      .thenReturn(mockCompletableFuture.asInstanceOf[CompletableFuture[java.io.InputStream]])
+      .thenReturn(mockCompletableFuture)
 
     val result = s3Utils.getObjectAsStream("bucket-name", "json/object/key")
     Source.fromInputStream(result).mkString should equal(objectString)
