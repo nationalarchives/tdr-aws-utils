@@ -53,7 +53,7 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     val s3AsyncClient = mock[S3AsyncClient]
     val s3Utils = S3Utils(s3AsyncClient)
     when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, java.io.InputStream]]))
-      .thenReturn(failedFuture(new RuntimeException("read failed")).asInstanceOf[CompletableFuture[java.io.InputStream]])
+      .thenReturn(failedFuture[java.io.InputStream](new RuntimeException("read failed")))
 
     val exception = intercept[ExecutionException] {
       s3Utils.getObjectAsStream("bucket-name", "json/object/key")
