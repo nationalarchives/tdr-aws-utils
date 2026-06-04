@@ -38,14 +38,12 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
 
   "getObjectAsStream" should "read the object bytes and return as input stream" in {
     val s3AsyncClient = mock[S3AsyncClient]
-    val mockResponseBytes = mock[ResponseBytes[GetObjectResponse]]
-    val mockCompletableFuture = CompletableFuture.completedFuture(mockResponseBytes)
-    when(mockResponseBytes.asInputStream())
-      .thenReturn(new ByteArrayInputStream(objectString.getBytes()))
+    val mockInputStream: java.io.InputStream = new ByteArrayInputStream(objectString.getBytes())
+    val mockCompletableFuture = CompletableFuture.completedFuture(mockInputStream)
 
     val s3Utils = S3Utils(s3AsyncClient)
-    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
-      .thenReturn(mockCompletableFuture)
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, java.io.InputStream]]))
+      .thenReturn(mockCompletableFuture.asInstanceOf[CompletableFuture[java.io.InputStream]])
 
     val result = s3Utils.getObjectAsStream("bucket-name", "json/object/key")
     Source.fromInputStream(result).mkString should equal(objectString)
@@ -54,8 +52,8 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
   "getObjectAsStream" should "return an error when reading the object fails" in {
     val s3AsyncClient = mock[S3AsyncClient]
     val s3Utils = S3Utils(s3AsyncClient)
-    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
-      .thenReturn(failedFuture(new RuntimeException("read failed")))
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, java.io.InputStream]]))
+      .thenReturn(failedFuture(new RuntimeException("read failed")).asInstanceOf[CompletableFuture[java.io.InputStream]])
 
     val exception = intercept[ExecutionException] {
       s3Utils.getObjectAsStream("bucket-name", "json/object/key")
