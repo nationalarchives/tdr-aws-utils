@@ -10,8 +10,10 @@ import org.scalatest.EitherValues
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
 import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.core.ResponseInputStream
 import software.amazon.awssdk.core.ResponseBytes
 import software.amazon.awssdk.core.async.{AsyncRequestBody, AsyncResponseTransformer}
+import software.amazon.awssdk.http.AbortableInputStream
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3AsyncClient
 import software.amazon.awssdk.services.s3.model._
@@ -55,10 +57,48 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     val s3AsyncClient = mock[S3AsyncClient]
     val s3Utils = S3Utils(s3AsyncClient)
     when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseBytes[GetObjectResponse]]]))
-      .thenReturn(failedFuture(new RuntimeException("read failed")))
+      .thenReturn(failedFuture[ResponseBytes[GetObjectResponse]](new RuntimeException("read failed")))
 
     val exception = intercept[ExecutionException] {
       s3Utils.getObjectAsStream("bucket-name", "json/object/key")
+    }
+    exception.getMessage should equal("java.lang.RuntimeException: read failed")
+  }
+
+  "getObjectAsStreamingInputStream" should "stream the object bytes and return as input stream" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    var streamClosed = false
+    val trackingInputStream = new ByteArrayInputStream(objectString.getBytes()) {
+      override def close(): Unit = {
+        streamClosed = true
+        super.close()
+      }
+    }
+    val mockInputStream = new ResponseInputStream[GetObjectResponse](
+      GetObjectResponse.builder().build(),
+      AbortableInputStream.create(trackingInputStream)
+    )
+    val mockCompletableFuture: CompletableFuture[ResponseInputStream[GetObjectResponse]] = CompletableFuture.completedFuture(mockInputStream)
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseInputStream[GetObjectResponse]]]))
+      .thenReturn(mockCompletableFuture)
+
+    val result = s3Utils.getObjectAsStreamingInputStream("bucket-name", "json/object/key")
+    val source = Source.fromInputStream(result)
+    try source.mkString should equal(objectString)
+    finally source.close()
+    streamClosed should equal(true)
+  }
+
+  "getObjectAsStreamingInputStream" should "return an error when reading the object fails" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val s3Utils = S3Utils(s3AsyncClient)
+    when(s3AsyncClient.getObject(any[GetObjectRequest], any[AsyncResponseTransformer[GetObjectResponse, ResponseInputStream[GetObjectResponse]]]))
+      .thenReturn(failedFuture[ResponseInputStream[GetObjectResponse]](new RuntimeException("read failed")))
+
+    val exception = intercept[ExecutionException] {
+      s3Utils.getObjectAsStreamingInputStream("bucket-name", "json/object/key")
     }
     exception.getMessage should equal("java.lang.RuntimeException: read failed")
   }
