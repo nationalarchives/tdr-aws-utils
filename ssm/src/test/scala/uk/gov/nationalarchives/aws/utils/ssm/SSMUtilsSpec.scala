@@ -1,6 +1,7 @@
 package uk.gov.nationalarchives.aws.utils.ssm
 
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito
 import org.mockito.MockitoSugar
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers._
@@ -11,7 +12,7 @@ class SSMUtilsSpec extends AnyFlatSpec with MockitoSugar {
 
   "getParameterValue" should "call ssm and return parameter value for given name" in {
     val expectedValue = "expectedValue"
-    val client: SsmClient = mock[SsmClient]
+    val client: SsmClient = Mockito.mock(classOf[SsmClient])
     val parameterResponse: GetParameterResponse = GetParameterResponse.builder()
       .parameter(Parameter.builder()
         .name("name")
