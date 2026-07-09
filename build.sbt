@@ -29,7 +29,7 @@ lazy val commonSettings = Seq(
     )
   ),
 
-  licenses := List("MIT" -> new URL("https://choosealicense.com/licenses/mit/")),
+  licenses := List(License.apply("MIT, "https://choosealicense.com/licenses/mit/")),
   homepage := Some(url("https://github.com/nationalarchives/tdr-aws-utils")),
 
   useGpgPinentry := true,
