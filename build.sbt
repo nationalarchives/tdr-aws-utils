@@ -1,7 +1,7 @@
 
-import Dependencies._
-import sbt.url
-import sbtrelease.ReleaseStateTransformations._
+import Dependencies.*
+import sbt.{ThisBuild, url}
+import sbtrelease.ReleaseStateTransformations.*
 import sbt.internal.librarymanagement.Publishing.sonaRelease
 
 lazy val commonSettings = Seq(
@@ -29,7 +29,7 @@ lazy val commonSettings = Seq(
     )
   ),
 
-  licenses := List(License.apply("MIT, "https://choosealicense.com/licenses/mit/")),
+  licenses := List(License.apply("MIT", "https://choosealicense.com/licenses/mit/")),
   homepage := Some(url("https://github.com/nationalarchives/tdr-aws-utils")),
 
   useGpgPinentry := true,
