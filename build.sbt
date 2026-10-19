@@ -1,6 +1,6 @@
 
 import Dependencies.*
-import sbt.{ThisBuild, url}
+import sbt.ThisBuild
 import sbtrelease.ReleaseStateTransformations.*
 import sbt.internal.librarymanagement.Publishing.sonaRelease
 
@@ -10,13 +10,13 @@ lazy val commonSettings = Seq(
     mockito % Test,
     catsEffect
   ),
-  scalaVersion := "3.9.0",
+  scalaVersion := "2.13.18",
   version := version.value,
   organization := "uk.gov.nationalarchives",
 
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/nationalarchives/tdr-aws-utils"),
+      uri("https://github.com/nationalarchives/tdr-aws-utils"),
       "git@github.com:nationalarchives/tdr-aws-utils"
     )
   ),
@@ -25,12 +25,12 @@ lazy val commonSettings = Seq(
       id = "tna-da-bot",
       name = "TNA Digital Archiving",
       email = "181243999+tna-da-bot@users.noreply.github.com",
-      url = url("https://github.com/nationalarchives/tdr-aws-utils")
+      url = uri("https://github.com/nationalarchives/tdr-aws-utils")
     )
   ),
 
-  licenses := List(License.apply("MIT", url("https://choosealicense.com/licenses/mit/"))),
-  homepage := Some(url("https://github.com/nationalarchives/tdr-aws-utils")),
+  licenses := List(License.MIT),
+  homepage := Some(uri("https://github.com/nationalarchives/tdr-aws-utils")),
 
   useGpgPinentry := true,
   publishTo := {
