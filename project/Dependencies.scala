@@ -1,12 +1,12 @@
-import sbt._
+import sbt.*
 
 object Dependencies {
-  private val awsSdkVersion = "2.57.10"
-  private val circeVersion = "0.14.16"
+  private val awsSdkVersion = "2.59.0"
+  private val circeVersion = "0.14.17"
 
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.20"
-  lazy val mockito = "org.mockito" %% "mockito-scala" % "2.2.1"
-  lazy val lambdaJavaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.4.0"
+  lazy val mockito = "org.mockito" %% "mockito-scala" % "2.2.3"
+  lazy val lambdaJavaCore = "com.amazonaws" % "aws-lambda-java-core" % "1.4.1"
   lazy val lambdaJavaEvents = "com.amazonaws" % "aws-lambda-java-events" % "3.16.1"
   lazy val s3Sdk = "software.amazon.awssdk" % "s3" % awsSdkVersion
   lazy val sesSdk = "software.amazon.awssdk" % "ses" % awsSdkVersion
@@ -19,7 +19,7 @@ object Dependencies {
   lazy val s3Bom = "software.amazon.awssdk" % "bom" % awsSdkVersion
   lazy val s3TransferManager = "software.amazon.awssdk" % "s3-transfer-manager" % awsSdkVersion
   lazy val secretsManagerSdk = "software.amazon.awssdk" % "secretsmanager" % awsSdkVersion
-  lazy val typesafe = "com.typesafe" % "config" % "1.4.8"
+  lazy val typesafe = "com.typesafe" % "config" % "1.4.10"
   lazy val circeCore = "io.circe" %% "circe-core" % circeVersion
   lazy val circeGeneric = "io.circe" %% "circe-generic" % circeVersion
   lazy val circeParser = "io.circe" %% "circe-parser" % circeVersion

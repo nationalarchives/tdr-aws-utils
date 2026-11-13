@@ -7,6 +7,7 @@ This is a repository for useful methods and circe decoders. These are all publis
 * `downloadFiles` Will download a file to S3 to a specified path or to a path matching the S3 key.
 * `upload` Will upload the file from a specified path to the supplied bucket and key.
 * `generateGetObjectSignedUrl` Will generate a presigned url.
+* `objectKeyExists` Checks if object key exists using `headObject` method
 
 ### Client
 * `s3` The synchronous `S3Client` which takes an endpoint as an argument.

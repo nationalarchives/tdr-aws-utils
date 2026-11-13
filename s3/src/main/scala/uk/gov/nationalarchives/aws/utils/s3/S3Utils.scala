@@ -34,6 +34,28 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
     toIO(client.getObject(GetObjectRequest.builder.bucket(bucket).key(key).build, path.getOrElse(Paths.get(key))))
   }
 
+  /** Method to check if head object exists for a given key
+   *
+   * @param bucketName
+   * Name of the source bucket
+   *
+   * @param key
+   * Key of the source object
+   *
+   * @return
+   * Boolean
+   */
+  def objectKeyExists(bucket: String, key: String): IO[Boolean] = {
+    val headObjectRequest: HeadObjectRequest = HeadObjectRequest.builder()
+      .bucket(bucket)
+      .key(key)
+      .build()
+
+    IO.defer(toIO(client.headObject(headObjectRequest)))
+      .as(true)
+      .handleError(_ => false)
+  }
+
   /** Method to copy an S3 object from source bucket to destination bucket.
    * This method uses the S3 Transfer Manager which performs the copy operation asynchronously and is more efficient for copying large objects.
    *
