@@ -36,24 +36,26 @@ class S3Utils(client: S3AsyncClient, presigner: S3Presigner, transferManager: S3
 
   /** Method to check if head object exists for a given key
    *
-   * @param bucketName
+   * @param bucket
    * Name of the source bucket
-   *
    * @param key
    * Key of the source object
-   *
    * @return
    * Boolean
    */
-  def objectKeyExists(bucket: String, key: String): IO[Boolean] = {
+  def objectKeyExists(bucket: String, key: String): Boolean = {
     val headObjectRequest: HeadObjectRequest = HeadObjectRequest.builder()
       .bucket(bucket)
       .key(key)
       .build()
 
-    IO.defer(toIO(client.headObject(headObjectRequest)))
-      .as(true)
-      .handleError(_ => false)
+      try {
+        client.headObject(headObjectRequest).get()
+        true
+      } catch {
+        case e: Exception if e.getCause.isInstanceOf[NoSuchKeyException] =>
+          false
+      }
   }
 
   /** Method to copy an S3 object from source bucket to destination bucket.
