@@ -354,4 +354,48 @@ class S3UtilsTest extends AnyFlatSpec with MockitoSugar with EitherValues {
     }
     exception.getMessage should equal("Put request failed")
   }
+
+  "'objectKeyExists'" should "return true when head object response retrieved" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val requestArgumentCaptor: ArgumentCaptor[HeadObjectRequest] = ArgumentCaptor.forClass(classOf[HeadObjectRequest])
+    when(s3AsyncClient.headObject(requestArgumentCaptor.capture()))
+      .thenReturn(CompletableFuture.completedFuture(HeadObjectResponse.builder().build()))
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    val result = s3Utils.objectKeyExists("bucket", "key")
+    result shouldBe true
+    requestArgumentCaptor.getValue.bucket() should equal ("bucket")
+    requestArgumentCaptor.getValue.key() should equal ("key")
+  }
+
+  "'objectKeyExists'" should "return false when no head object response retrieved" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val requestArgumentCaptor: ArgumentCaptor[HeadObjectRequest] = ArgumentCaptor.forClass(classOf[HeadObjectRequest])
+    when(s3AsyncClient.headObject(requestArgumentCaptor.capture()))
+      .thenReturn(
+        failedFuture(NoSuchKeyException.builder().message("No such key").build())
+      )
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    val result = s3Utils.objectKeyExists("bucket", "key")
+    result shouldBe false
+    requestArgumentCaptor.getValue.bucket() should equal ("bucket")
+    requestArgumentCaptor.getValue.key() should equal ("key")
+  }
+
+  "'objectKeyExists'" should "return error when a non-'NoSuchKeyException' is thrown" in {
+    val s3AsyncClient = mock[S3AsyncClient]
+    val requestArgumentCaptor: ArgumentCaptor[HeadObjectRequest] = ArgumentCaptor.forClass(classOf[HeadObjectRequest])
+    when(s3AsyncClient.headObject(requestArgumentCaptor.capture()))
+      .thenReturn(failedFuture(S3Exception.builder.message("404 response").build()))
+
+    val s3Utils = S3Utils(s3AsyncClient)
+    val exception = intercept[Exception] {
+      s3Utils.objectKeyExists("bucket", "key")
+    }
+    exception.getCause.getMessage should equal("404 response")
+
+    requestArgumentCaptor.getValue.bucket() should equal ("bucket")
+    requestArgumentCaptor.getValue.key() should equal ("key")
+  }
 }
